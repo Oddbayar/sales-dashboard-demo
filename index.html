@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Борлуулалтын самбарын дизайн стандарт · Демо</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232563EB%27/%3E%3Cpath d=%27M8 21l5-6 4 3 7-8%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Үндсэн агуулга руу шилжих</a>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16M8 15l3.5-4 3 2.5L19 8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.6-1-2.6 0-.9.7-1.4 1.6-1.4h1.9a4.2 4.2 0 0 0 4.2-4.3C20.5 6.8 16.7 3.5 12 3.5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><circle cx="8" cy="11" r="1.1" fill="currentColor"/><circle cx="11" cy="7.6" r="1.1" fill="currentColor"/><circle cx="15.2" cy="8.2" r="1.1" fill="currentColor"/></symbol>
+  <symbol id="i-blocks" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="13" y="4" width="7" height="7" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="4" y="13" width="7" height="7" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.75"/><rect x="13" y="13" width="7" height="7" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.75"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4.5 5.5c2.6-1 5.1-.8 7.5.8v13c-2.4-1.6-4.9-1.8-7.5-.8zM19.5 5.5c-2.6-1-5.1-.8-7.5.8v13c2.4-1.6 4.9-1.8 7.5-.8z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+  <symbol id="i-compare" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M4 8l3-3 3 3M14 16l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 20.5s6-5.4 6-10.5a6 6 0 0 0-12 0c0 5.1 6 10.5 6 10.5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" stroke-width="1.75"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 4l8.5 4.5L12 13 3.5 8.5zM3.5 12.5L12 17l8.5-4.5M3.5 16.5L12 21l8.5-4.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M15.5 12.5h5M6 6l9-2.5 1 2.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3.5l8 4v9l-8 4-8-4v-9zM4 7.5l8 4 8-4M12 11.5v9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12V4.5a1 1 0 0 1 1-1H12l8.5 8.5-8.5 8.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-pie" viewBox="0 0 24 24"><path d="M12 3.5v8.5h8.5A8.5 8.5 0 1 1 12 3.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M15 3.8A8.5 8.5 0 0 1 20.2 9H15z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-up" viewBox="0 0 16 16"><path d="M8 12.5v-9M4 7.5l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 3.5v9M4 8.5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-flat" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5l4.5 4.5 4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M5 12a7 7 0 1 0 2.1-5M5 4v4h4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v4.5M8 4.6v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 16 16"><path d="M8 2l6.5 11.5h-13z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6.5v3.2M8 11.7v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-err" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 8.2l2 2 4-4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="sidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">Б</span>
+      <span class="brand-text"><strong>Борлуулалт</strong><span>Аналитик самбар</span></span>
+    </div>
+    <nav class="nav" aria-label="Үндсэн цэс">
+      <p class="nav-label" aria-hidden="true">Шинжилгээ</p>
+      <ul>
+        <li><a href="#overview" data-nav="overview"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span class="nav-long">Тойм самбар</span><span class="nav-short">Тойм</span></a></li>
+      </ul>
+      <p class="nav-label" aria-hidden="true">Загварын сан</p>
+      <ul>
+        <li><a href="#tokens" data-nav="tokens"><svg class="ic" aria-hidden="true"><use href="#i-palette"/></svg><span class="nav-long">Өнгө ба бичвэр</span><span class="nav-short">Өнгө</span></a></li>
+        <li><a href="#components" data-nav="components"><svg class="ic" aria-hidden="true"><use href="#i-blocks"/></svg><span class="nav-long">Компонент</span><span class="nav-short">Компонент</span></a></li>
+        <li><a href="#principles" data-nav="principles"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span class="nav-long">UX зарчим</span><span class="nav-short">Зарчим</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-foot"><span class="demo-dot" aria-hidden="true"></span><span>Зохиомол демо · v2.0</span></div>
+  </header>
+
+  <div class="shell">
+  <div class="topbar">
+    <nav class="crumbs" aria-label="Байршил"><ol><li id="crumb-parent">Шинжилгээ</li><li aria-current="page" id="crumb">Тойм самбар</li></ol></nav>
+    <div class="top-meta">
+      <span class="pill-demo" title="Бүх тоо зохиомол жишээ. Бодит компанийн үзүүлэлт биш."><span class="demo-dot" aria-hidden="true"></span>Демо өгөгдөл</span>
+      <span class="updated"><svg class="ic-s" aria-hidden="true"><use href="#i-clock"/></svg><span><span class="upd-word">Шинэчилсэн </span><time datetime="2026-10-31">2026.10.31</time></span></span>
+    </div>
+  </div>
+  <main id="main" tabindex="-1">
+
+    <!-- ============ ТОЙМ ============ -->
+    <section class="view" id="view-overview" data-view="overview" aria-labelledby="h-overview">
+      <div class="page-head">
+        <div>
+          <h1 id="h-overview">Борлуулалтын тойм</h1>
+          <p class="page-sub">Гэр ахуйн бараа · 21 аймгийн дэлгүүр</p>
+        </div>
+      </div>
+
+      <div class="filterbar">
+        <form class="toolbar" id="filters" aria-label="Шүүлтүүр" onsubmit="return false">
+          <div class="field"><label for="f-period"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>Хугацаа</label>
+            <select id="f-period">
+              <option value="3">Сүүлийн 3 сар</option>
+              <option value="6">Сүүлийн 6 сар</option>
+              <option value="12" selected>Сүүлийн 12 сар</option>
+              <option value="ytd">2026 он (1–10 сар)</option>
+            </select></div>
+          <div class="field"><label for="f-compare"><svg class="ic" aria-hidden="true"><use href="#i-compare"/></svg>Харьцуулах</label>
+            <select id="f-compare">
+              <option value="prev">Өмнөх үе</option>
+              <option value="yoy">Өмнөх оны мөн үе</option>
+            </select></div>
+          <div class="field"><label for="f-aimag"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Аймаг</label>
+            <select id="f-aimag"><option value="">Бүх аймаг (21)</option></select></div>
+          <div class="field"><label for="f-cat"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>Ангилал</label>
+            <select id="f-cat"><option value="">Бүх ангилал (7)</option></select></div>
+          <button type="button" class="btn btn-quiet" id="f-reset" disabled><svg class="ic" aria-hidden="true"><use href="#i-reset"/></svg>Цэвэрлэх</button>
+        </form>
+        <p id="scope-text" class="scope" aria-live="polite"></p>
+      </div>
+      <ul class="chips" id="active-chips" aria-label="Идэвхтэй шүүлтүүр"></ul>
+      <div id="data-notice" class="notice notice-warn" hidden></div>
+
+      <section class="kpis" aria-label="Гол үзүүлэлт" id="kpis"></section>
+
+      <div class="grid-charts">
+        <section class="card card-chart" aria-labelledby="h-trend">
+          <div class="card-head">
+            <div>
+              <h2 id="h-trend">Сарын борлуулалтын явц</h2>
+              <p class="card-sub" id="trend-sub"></p>
+            </div>
+            <div class="seg" role="group" aria-label="Үзүүлэлт сонгох">
+              <button type="button" class="seg-btn" data-metric="a" aria-pressed="true">Дүн, ₮</button>
+              <button type="button" class="seg-btn" data-metric="q" aria-pressed="false">Тоо, ш</button>
+            </div>
+          </div>
+          <div class="legend" role="group" aria-label="Цуваа харуулах/нуух">
+            <button type="button" class="legend-btn" data-series="cur" aria-pressed="true"><span class="key key-line" aria-hidden="true"></span><span id="lg-cur">Сонгосон үе</span></button>
+            <button type="button" class="legend-btn" data-series="cmp" aria-pressed="true"><span class="key key-dash" aria-hidden="true"></span><span id="lg-cmp">Харьцуулах үе</span></button>
+            <span class="legend-note" id="lg-missing" hidden><span class="key key-missing" aria-hidden="true"></span>Дутуу мэдээтэй сар</span>
+          </div>
+          <div class="chart-wrap" id="trend-wrap">
+            <svg id="trend" class="chart" tabindex="0" role="img" aria-describedby="trend-help"></svg>
+            <div class="tooltip" id="trend-tip" role="status" aria-live="polite" hidden></div>
+          </div>
+          <p class="sr-only" id="trend-help">Графикт сонголт хийгээд ← → товчоор сар бүрийн утгыг харна. Y тэнхлэг 0-ээс эхэлнэ.</p>
+          <details class="data-eq">
+            <summary>Хүснэгтээр харах</summary>
+            <div class="table-scroll small"><table class="tbl" id="trend-table"></table></div>
+          </details>
+        </section>
+
+        <section class="card card-chart" aria-labelledby="h-bars">
+          <div class="card-head">
+            <div>
+              <h2 id="h-bars">Ангиллын эрэмбэ</h2>
+              <p class="card-sub" id="bars-sub"></p>
+            </div>
+          </div>
+          <div class="legend legend-static">
+            <span class="legend-note"><span class="key key-bar" aria-hidden="true"></span>Сонгосон үе</span>
+            <span class="legend-note"><span class="key key-tick" aria-hidden="true"></span>Харьцуулах үе</span>
+          </div>
+          <div class="hbars" id="bars"></div>
+          <p class="sr-only">Мөр дээр дарж тухайн ангиллаар шүүнэ. Дахин дарвал шүүлтүүр арилна.</p>
+          <details class="data-eq">
+            <summary>Хүснэгтээр харах</summary>
+            <div class="table-scroll small"><table class="tbl" id="bars-table"></table></div>
+          </details>
+        </section>
+      </div>
+
+      <section class="card card-table" aria-labelledby="h-table">
+        <div class="card-head card-head-wrap">
+          <div>
+            <h2 id="h-table">Дэлгүүр ба бараа</h2>
+            <p class="card-sub">Сонгосон үеийн борлуулалт, бараа тус бүрээр</p>
+          </div>
+          <div class="table-tools">
+            <div class="field-inline">
+              <label for="t-search" class="sr-only">Хүснэгтээс хайх</label>
+              <span class="input-icon"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="t-search" placeholder="Дэлгүүр, бараа, SKU хайх" autocomplete="off"></span>
+            </div>
+            <button type="button" class="btn btn-secondary" id="t-export"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>CSV татах</button>
+          </div>
+        </div>
+        <div class="table-scroll" id="table-scroll" tabindex="0" role="region" aria-labelledby="h-table">
+          <table class="tbl tbl-main" id="sales-table">
+            <caption class="sr-only">Дэлгүүр, барааны борлуулалт. Баганын толгой дээр дарж эрэмбэлнэ.</caption>
+            <thead><tr id="sales-head"></tr></thead>
+            <tbody id="sales-body"></tbody>
+          </table>
+          <div class="empty" id="table-empty" hidden>
+            <p id="table-empty-text"><strong>Хайлтад тохирох мөр олдсонгүй.</strong> Хайлтын үгээ өөрчлөх эсвэл шүүлтүүрээ цэвэрлэнэ үү.</p>
+            <button type="button" class="btn btn-secondary" id="t-clear">Хайлт цэвэрлэх</button>
+          </div>
+        </div>
+        <div class="pager">
+          <p id="pager-info" aria-live="polite"></p>
+          <p id="table-total" class="total"></p>
+          <div class="pager-btns">
+            <button type="button" class="btn btn-sm" id="p-prev">Өмнөх</button>
+            <span id="pager-page" class="pager-page"></span>
+            <button type="button" class="btn btn-sm" id="p-next">Дараах</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============ ТОКЕН ============ -->
+    <section class="view" id="view-tokens" data-view="tokens" aria-labelledby="h-tokens" hidden>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Загварын сан · токен</p>
+          <h1 id="h-tokens">Өнгө ба бичвэр</h1>
+        </div>
+      </div>
+      <p class="lead">Өнгө, үсэг, зай, сүүдрийг шууд hex/px-ээр бус CSS хувьсагчаар ашиглана. Нэр нь утгыг биш үүргийг заана.</p>
+
+      <section class="card" aria-labelledby="h-pal">
+        <h2 id="h-pal">Өнгө</h2>
+        <p class="card-sub">Тодролын харьцааг хуудас дээрээ шууд тооцоолсон. Энгийн текстэд ≥ 4.5:1 шаардлагатай.</p>
+        <div class="swatches" id="swatches"></div>
+        <h3>Ангиллын өнгө</h3>
+        <p class="card-sub">Ангилал бүр бүх график, хүснэгтэд ижил өнгөтэй. Өнгөнөөс гадна нэрээр шошголно.</p>
+        <div class="swatches swatches-cat" id="cat-swatches"></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-type">
+        <h2 id="h-type">Кирилл үсгийн шатлал</h2>
+        <p class="card-sub">Inter 4.1 (SIL OFL 1.1) төсөлд хадгалсан, сүлжээ шаардахгүй → Segoe UI → Noto Sans → Arial. Ө, Ү бүрэн. Тоо <code>tabular-nums</code>.</p>
+        <div class="type-scale">
+          <div class="type-row"><span class="type-meta">Гарчиг 1 · 28/36 · 600</span><span class="t-h1">Өдөр тутмын борлуулалтын үзүүлэлт</span></div>
+          <div class="type-row"><span class="type-meta">Гарчиг 2 · 20/28 · 600</span><span class="t-h2">Үйлчилгээний бүс ба аймгийн харьцуулалт</span></div>
+          <div class="type-row"><span class="type-meta">Гарчиг 3 · 15/22 · 600</span><span class="t-h3">Өвөрхангай, Өмнөговь, Үнэ тогтвортой</span></div>
+          <div class="type-row"><span class="type-meta">Үндсэн · 14/22 · 400</span><span class="t-body">Шүүлтүүр өөрчлөхөд гол үзүүлэлт, график, хүснэгт хамт шинэчлэгдэнэ.</span></div>
+          <div class="type-row"><span class="type-meta">Нягт · 13/20 · 400</span><span class="t-small">Хүснэгт, шошго, тайлбар текст. Хүснэгтийн мөрөнд ашиглана.</span></div>
+          <div class="type-row"><span class="type-meta">Жижиг · 12/16 · 500</span><span class="t-xs">Тэнхлэгийн шошго, огноо, эх сурвалж. 12px-ээс жижиг болгохгүй.</span></div>
+          <div class="type-row"><span class="type-meta">KPI тоо · 32/38 · 600</span><span class="t-kpi num">28.1<small>тэрбум ₮</small></span></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-num">
+        <h2 id="h-num">Тоо, мөнгөн дүн, огноо</h2>
+        <div class="table-scroll small">
+          <table class="tbl">
+            <thead><tr><th scope="col">Төрөл</th><th scope="col">Дүрэм</th><th scope="col" class="num">Жишээ</th></tr></thead>
+            <tbody id="format-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <section class="card" aria-labelledby="h-space">
+          <h2 id="h-space">Зай (4px суурь)</h2>
+          <div class="spacing" id="spacing"></div>
+        </section>
+        <section class="card" aria-labelledby="h-elev">
+          <h2 id="h-elev">Хүрээ, сүүдэр, булан</h2>
+          <div class="elev-grid">
+            <div class="elev elev-0"><strong>Түвшин 0</strong><span>Хүрээ 1px · зөөлөн сүүдэр · карт</span></div>
+            <div class="elev elev-1"><strong>Түвшин 1</strong><span>Хөвөх цэс, tooltip</span></div>
+            <div class="elev elev-2"><strong>Түвшин 2</strong><span>Зөвхөн харилцах цонх</span></div>
+          </div>
+          <p class="card-sub">Булан: 8px (товч, оролт), 12px (карт), 999px (чип). Карт: 1px хүрээ + маш зөөлөн сүүдэр.</p>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="h-states">
+        <h2 id="h-states">Төлөв</h2>
+        <p class="card-sub">Төлөв бүр өнгө + хэлбэр/текстээр ялгарна. Tab товчоор фокусын хүрээг шалгана уу.</p>
+        <div class="state-row">
+          <div class="state-item"><button type="button" class="btn btn-primary" data-demo-press>Үндсэн</button><span>Хэвийн</span></div>
+          <div class="state-item"><button type="button" class="btn btn-primary is-hover" tabindex="-1" aria-hidden="true">Үндсэн</button><span>Хулгана дээр</span></div>
+          <div class="state-item"><button type="button" class="btn btn-primary is-focus" tabindex="-1" aria-hidden="true">Үндсэн</button><span>Фокус</span></div>
+          <div class="state-item"><button type="button" class="btn btn-primary" disabled>Үндсэн</button><span>Идэвхгүй</span></div>
+          <div class="state-item"><button type="button" class="seg-btn seg-solo" aria-pressed="true">Сонгосон</button><span>Сонгосон</span></div>
+          <div class="state-item"><span class="row-demo">Сонгосон мөр</span><span>Хүснэгтийн мөр</span></div>
+        </div>
+        <p class="hint press-out" aria-live="polite">«Үндсэн» товчийг дарж хариу үйлдлийг шалгана уу.</p>
+      </section>
+    </section>
+
+    <!-- ============ БҮРЭЛДЭХҮҮН ============ -->
+    <section class="view" id="view-components" data-view="components" aria-labelledby="h-comp" hidden>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Загварын сан · удирдлага, хүснэгт, график, төлөв</p>
+          <h1 id="h-comp">Компонент</h1>
+        </div>
+      </div>
+      <p class="lead">Доорх жишээнүүд нь загварын үзүүлэн. Нэвтрэлт, эрх, сервер холболт байхгүй.</p>
+
+      <div class="grid-2">
+        <section class="card" aria-labelledby="h-btns">
+          <h2 id="h-btns">Товч</h2>
+          <p class="card-sub">Ширээн дээр 36px, мэдрэгч дэлгэцэнд 44px. Нэг хэсэгт нэг л үндсэн товч.</p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" data-demo-press>Хадгалах</button>
+            <button type="button" class="btn btn-secondary" data-demo-press>Харьцуулах</button>
+            <button type="button" class="btn btn-ghost" data-demo-press>Цуцлах</button>
+          </div>
+          <p class="hint press-out" aria-live="polite">Товч дарахад энд хариу харагдана.</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-inputs">
+          <h2 id="h-inputs">Оролт, сонголт</h2>
+          <p class="card-sub">Шошго үргэлж харагдана. Placeholder шошгыг орлохгүй.</p>
+          <div class="form-demo">
+            <div class="field">
+              <label for="d-date">Эхлэх сар</label>
+              <select id="d-date" aria-describedby="d-date-help"></select>
+              <span class="help" id="d-date-help">2024.11 – 2026.10 хооронд. Хөтчийн огнооны формат хэлнээс хамаарах тул сарыг жагсаалтаар сонгуулна.</span>
+            </div>
+            <div class="field">
+              <label for="d-qty">Доод тоо ширхэг</label>
+              <input type="text" inputmode="numeric" id="d-qty" value="12а" aria-invalid="true" aria-describedby="d-qty-err">
+              <span class="help help-err" id="d-qty-err"><svg class="ic-s" aria-hidden="true"><use href="#i-err"/></svg>Зөвхөн тоо оруулна уу. Жишээ: 120</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="h-badges">
+        <h2 id="h-badges">Төлөвийн тэмдэг</h2>
+        <p class="card-sub">Өнгө, дүрс, текст гурвуулаа. Өнгө ганцаараа утга илэрхийлэхгүй.</p>
+        <div class="btn-row">
+          <span class="badge badge-ok"><svg class="ic-s" aria-hidden="true"><use href="#i-ok"/></svg>Шинэчлэгдсэн</span>
+          <span class="badge badge-warn"><svg class="ic-s" aria-hidden="true"><use href="#i-warn"/></svg>Мэдээ дутуу</span>
+          <span class="badge badge-err"><svg class="ic-s" aria-hidden="true"><use href="#i-err"/></svg>Ачаалж чадсангүй</span>
+          <span class="badge badge-neutral"><svg class="ic-s" aria-hidden="true"><use href="#i-clock"/></svg>2026.10.31-ний байдлаар</span>
+          <span class="delta delta-up"><svg class="ic-s" aria-hidden="true"><use href="#i-up"/></svg>+4.2%</span>
+          <span class="delta delta-down"><svg class="ic-s" aria-hidden="true"><use href="#i-down"/></svg>−3.1%</span>
+          <span class="delta delta-flat"><svg class="ic-s" aria-hidden="true"><use href="#i-flat"/></svg>0.0%</span>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-statesdemo">
+        <div class="card-head">
+          <div>
+            <h2 id="h-statesdemo">Өгөгдлийн төлөвийн жишээ</h2>
+            <p class="card-sub">Бүрэлдэхүүний үзүүлэн. Бодит нэвтрэлт, эрх, сүлжээ ашиглахгүй.</p>
+          </div>
+        </div>
+        <div class="states-grid">
+          <div class="state-card">
+            <span class="demo-tag">Жишээ</span>
+            <h3>Хоосон</h3>
+            <div class="state-body">
+              <p><strong>Сонгосон хугацаанд борлуулалт алга.</strong></p>
+              <p class="muted">Тэг биш, мөр байхгүй гэсэн үг. Хугацааг уртасгаж үзнэ үү.</p>
+            </div>
+          </div>
+          <div class="state-card">
+            <span class="demo-tag">Жишээ</span>
+            <h3>Ачаалж байна</h3>
+            <div class="state-body" aria-busy="true" aria-label="Ачаалж байна">
+              <div class="skel skel-l"></div><div class="skel"></div><div class="skel skel-s"></div>
+            </div>
+          </div>
+          <div class="state-card">
+            <span class="demo-tag">Жишээ</span>
+            <h3>Алдаа</h3>
+            <div class="state-body" id="err-demo">
+              <p class="status-line err"><svg class="ic-s" aria-hidden="true"><use href="#i-err"/></svg>Өгөгдөл ачаалж чадсангүй.</p>
+              <p class="muted">Бусад хэсэг хэвээр ажиллана.</p>
+              <button type="button" class="btn btn-secondary btn-sm" id="err-retry">Дахин оролдох</button>
+            </div>
+          </div>
+          <div class="state-card">
+            <span class="demo-tag">Жишээ</span>
+            <h3>Эрх хүрэлцэхгүй</h3>
+            <div class="state-body">
+              <p class="status-line"><svg class="ic-s" aria-hidden="true"><use href="#i-lock"/></svg>Энэ аймгийн мэдээг харах эрхгүй.</p>
+              <p class="muted">Хэнд хандахыг тодорхой бичнэ. Хоосон хуудас харуулахгүй.</p>
+            </div>
+          </div>
+          <div class="state-card">
+            <span class="demo-tag">Жишээ</span>
+            <h3>Хуучирсан мэдээ</h3>
+            <div class="state-body">
+              <p class="status-line warn"><svg class="ic-s" aria-hidden="true"><use href="#i-warn"/></svg>Сүүлд 3 хоногийн өмнө шинэчлэгдсэн.</p>
+              <p class="muted">Огноог гарчгийн хажууд байнга харуулна.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-chartpat">
+        <h2 id="h-chartpat">Графикийн загвар</h2>
+        <p class="card-sub">Ижил өгөгдөл: 102 ба 108. Тэнхлэгийг тасалбал 6%-ийн зөрүү 4 дахин мэт харагдана.</p>
+        <div class="grid-2 inner">
+          <figure class="pattern pattern-bad">
+            <figcaption><span class="badge badge-err"><svg class="ic-s" aria-hidden="true"><use href="#i-err"/></svg>Буруу</span> Багана 100-аас эхэлсэн</figcaption>
+            <div class="mini-bars" aria-hidden="true"><div style="--w:25%"><span>А</span></div><div style="--w:100%"><span>Б</span></div></div>
+            <p class="axis-note">Тэнхлэг: 100 → 108</p>
+          </figure>
+          <figure class="pattern pattern-good">
+            <figcaption><span class="badge badge-ok"><svg class="ic-s" aria-hidden="true"><use href="#i-ok"/></svg>Зөв</span> Багана 0-ээс эхэлсэн</figcaption>
+            <div class="mini-bars" aria-hidden="true"><div style="--w:94.4%"><span>А · 102</span></div><div style="--w:100%"><span>Б · 108</span></div></div>
+            <p class="axis-note">Тэнхлэг: 0 → 108</p>
+          </figure>
+        </div>
+        <figure class="pattern" id="gap-demo-fig">
+          <figcaption><span class="badge">Компонентын жишээ</span> Дутуу сар ба тэг утга (зориуд зохиосон; тойм хуудасны өгөгдөлд байхгүй)</figcaption>
+          <svg id="gap-demo" viewBox="0 0 320 120" width="100%" height="120" role="img" aria-label="Жишээ: 2026.08 мэдээ алга (шугам тасарсан), 2026.10 борлуулалт 0">
+            <line x1="20" x2="310" y1="100" y2="100" stroke="#CDD3DC"/>
+            <path d="M30 60 L80 50 L130 55" fill="none" stroke="#2563EB" stroke-width="2"/>
+            <path d="M230 45 L280 100" fill="none" stroke="#2563EB" stroke-width="2"/>
+            <circle cx="30" cy="60" r="3.5" fill="#2563EB"/><circle cx="80" cy="50" r="3.5" fill="#2563EB"/><circle cx="130" cy="55" r="3.5" fill="#2563EB"/>
+            <circle class="dot-missing" cx="180" cy="100" r="5" fill="#fff" stroke="#B54708" stroke-dasharray="2 2" stroke-width="2"/>
+            <text x="180" y="88" text-anchor="middle" font-size="12" fill="#5F6B7D">мэдээ алга</text>
+            <circle cx="230" cy="45" r="3.5" fill="#2563EB"/><circle class="dot-zero" cx="280" cy="100" r="3.5" fill="#2563EB"/>
+            <text x="280" y="88" text-anchor="middle" font-size="12" fill="#5F6B7D">0</text>
+          </svg>
+          <table class="tbl" id="gap-demo-table"><caption class="sr-only">Дутуу ба тэг утгын жишээ хүснэгт</caption>
+            <thead><tr><th scope="col">Сар</th><th scope="col" class="num">Дүн, ₮</th><th scope="col">Тэмдэглэл</th></tr></thead>
+            <tbody><tr><th scope="row">2026.07</th><td class="num">1,250,000</td><td></td></tr>
+            <tr><th scope="row">2026.08</th><td class="num">—</td><td>Мэдээ ирээгүй (0 биш)</td></tr>
+            <tr><th scope="row">2026.09</th><td class="num">1,410,000</td><td></td></tr>
+            <tr><th scope="row">2026.10</th><td class="num">0</td><td>Борлуулалт 0</td></tr></tbody>
+          </table>
+        </figure>
+        <ul class="rules">
+          <li><strong>Цаг хугацаа</strong> → шугаман график. <strong>Ангилал</strong> → хэвтээ багана, их → бага эрэмбэ.</li>
+          <li>Харьцуулах үеийг тасархай шугам эсвэл тэмдэглэгээгээр ялгана. Өнгө ганцаараа хангалтгүй.</li>
+          <li><strong>Дутуу мэдээ</strong> = тасархай/хоосон цэг, шошготой. <strong>Тэг</strong> = 0 гэж бичнэ. Хоёрыг хольж болохгүй.</li>
+          <li>Утга, нэгжийг шууд бичнэ (₮, ш). Tooltip-оос гадна хүснэгтэн хувилбар байна.</li>
+          <li>Цуваа 4-өөс олон бол жижиг олон график эсвэл хүснэгт ашиглана.</li>
+        </ul>
+      </section>
+
+      <section class="card" aria-labelledby="h-tablepat">
+        <h2 id="h-tablepat">Хүснэгтийн дүрэм</h2>
+        <ul class="rules">
+          <li>Тоон багана баруун тийш, <code>tabular-nums</code>, нэгж толгойд: «Дүн, ₮», «Тоо, ш».</li>
+          <li>Эрэмбэлэх толгой нь товч, <code>aria-sort</code> төлөвтэй, сум дүрс харагдана.</li>
+          <li>Толгой мөр гүйлгэхэд наалттай. Хэвтээ гүйлгэлт зөвхөн хүснэгтийн доторх хүрээнд.</li>
+          <li>Хуудаслалт: 10 мөр, «1–10 / 128 мөр» гэж бичнэ. Хайлт үр дүнгүй бол хоосон төлөвийг тайлбартай харуулна.</li>
+          <li>Мөрийн дэлгэрэнгүй цонх Esc-ээр хаагдана. Фокус нээсэн товч руу буцна.</li>
+        </ul>
+        <p><a class="link" href="#overview" data-goto="h-table">Тойм самбар дээрх хүснэгтийг үзэх<svg class="ic-s" aria-hidden="true"><use href="#i-chev"/></svg></a></p>
+      </section>
+    </section>
+
+    <!-- ============ ЗАРЧИМ ============ -->
+    <section class="view" id="view-principles" data-view="principles" aria-labelledby="h-prin" hidden>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Загварын сан · ашигтай дүрэм, туйлын хууль биш</p>
+          <h1 id="h-prin">Самбарын UX зарчим</h1>
+        </div>
+      </div>
+      <p class="lead">Зарчим бүрийг энэ самбар дээрх бодит жишээтэй холбосон. Тоон босгыг баримжаа гэж ойлгоно. Эцсийн шийдвэрийг хэрэглэгчийн туршилтаар баталгаажуулна.</p>
+      <div class="principles" id="principles-list"></div>
+    </section>
+
+  </main>
+  </div>
+</div>
+
+<dialog id="detail" aria-labelledby="detail-title">
+  <div class="dlg-head">
+    <div>
+      <p class="eyebrow" id="detail-eyebrow"></p>
+      <h2 id="detail-title"></h2>
+    </div>
+    <button type="button" class="btn btn-ghost btn-icon" id="detail-close" aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="dlg-body" id="detail-body"></div>
+  <div class="dlg-foot">
+    <span class="hint">Зохиомол демо өгөгдөл</span>
+    <button type="button" class="btn btn-secondary" id="detail-ok">Хаах</button>
+  </div>
+</dialog>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
