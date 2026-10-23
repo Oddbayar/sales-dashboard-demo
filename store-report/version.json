@@ -1,19 +1,19 @@
 {
- "build": "d709cd13a839",
+ "build": "ebf1e2994e81",
  "cutoff": "2026-10-22",
  "stores": [
   "ST-13204"
  ],
  "files": {
   "assets/styles.css": "6245f76fba7029d1ccbdc0855e2f65e320dae6d341f49e4c38522109231c115a",
-  "assets/app.js": "aae234d7667082439d86a6fe7129f98c0c1735ad816a2d60541152ed29c427e3",
-  "assets/stores.js": "85cad720c5d68a7803d6113a487db11ef7ed32d9bb68e2aea43c345c2aa87960",
-  "data/fixture.js": "2f6c51e2f913bd2e07276156df2b8e3c2ab7617c84b527d695f14213fbba1674",
-  "data/registry.js": "b7effbf5d0e16baf10623f5089d13ebfd8bb1a0ba6985c1e840052a08cbda10d",
+  "assets/app.js": "56d53b007c446844de3404ea05eba5e5d89bebe4cd384a623c764ca0aeac8fed",
+  "assets/stores.js": "d5ed83df57826d2dc85c55a01b29a42060202a439678b4b051000328eeb19523",
+  "data/fixture.js": "332e5b0c105391689e95d64db4e83ad31fa3fd99e08ccc2514825b0a4214bb50",
+  "data/registry.js": "2b08a66ddddf4058e6e8aa987a87bb341b26469611fa047690c306b944d31e2c",
   "assets/fonts/Inter-Regular.woff2": "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085",
   "assets/fonts/Inter-Medium.woff2": "0ff3e94614e1493eb556314fd247ae6c4a85a7783b4cc86be539940cf83f2a48",
   "assets/fonts/Inter-SemiBold.woff2": "5cb7103e4e605989afebc03d989c79201e54b21b5183db33981f70db9178a301",
   "assets/fonts/Inter-LICENSE.txt": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
-  "index.html": "c0de0d9012a1d6d3c8135e24cad8fd283d3ffc3539331f92ce0da59664e2b88e"
+  "index.html": "7544429807951ddbe86bffa25cf6d6786ad16994db5271e31bd4982b24a866b7"
  }
 }
