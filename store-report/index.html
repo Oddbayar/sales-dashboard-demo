@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <meta name="build" content="d709cd13a839">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Дэлгүүрийн тайлан · Демо</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232563EB%27/%3E%3Cpath d=%27M8 21l5-6 4 3 7-8%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/Inter-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/styles.css?v=6245f76fba">
+  <!-- Optional: official Telegram Mini App SDK. Async so the report and code entry work without it (plain browser, offline). -->
+  <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.StoreReport && window.StoreReport.telegram()"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4z M4 8l8 4 8-4 M12 12v8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M4 12V5a1 1 0 0 1 1-1h7l8 8-8 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.5" cy="8.5" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <!-- category icons: one coherent line set -->
+    <symbol id="c-dish" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="c-hygiene" viewBox="0 0 24 24"><path d="M12 3.5s6 6.4 6 10.8a6 6 0 0 1-12 0c0-4.4 6-10.8 6-10.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="c-laundry" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 6.5h.01M11 6.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="c-paper" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4v13H7z M14 3.5v4h4 M9.5 12h6M9.5 15.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="c-clean" viewBox="0 0 24 24"><path d="M12 3.5v4M12 16.5v4M3.5 12h4M16.5 12h4M6.3 6.3l2.6 2.6M15.1 15.1l2.6 2.6M6.3 17.7l2.6-2.6M15.1 8.9l2.6-2.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="c-oral" viewBox="0 0 24 24"><path d="M8 3.5c-2.4 0-3.8 1.9-3.8 4.3 0 2.9 1.5 4.3 1.9 7.6.3 2.4.9 5.1 2.3 5.1s1.6-2.9 3.6-2.9 2.2 2.9 3.6 2.9 2-2.7 2.3-5.1c.4-3.3 1.9-4.7 1.9-7.6 0-2.4-1.4-4.3-3.8-4.3-1.6 0-2.5.9-4 .9s-2.4-.9-4-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="c-tools" viewBox="0 0 24 24"><path d="M14.5 3.5l6 6-2 2-6-6z M12.5 5.5l-8 8 3 3 3-3 3 3 3-3-3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="c-other" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <!-- Compact sticky context: appears only after the header has scrolled away -->
+  <div class="ctxbar" id="bar" hidden>
+    <div class="bar-in">
+      <p class="bar-store"><strong id="bar-name"></strong><span id="bar-code"></span></p>
+      <nav class="bar-nav" aria-label="Хэсэг рүү очих">
+        <button type="button" data-go="products">Бараа</button>
+        <button type="button" data-go="brands">Брэнд</button>
+        <button type="button" data-go="categories">Категори</button>
+      </nav>
+      <button type="button" class="prog-btn bar-as" id="bar-as" aria-haspopup="dialog">
+        <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg><span class="l">Барааны карт</span><span class="badge num" id="bar-as-count"></span></button>
+      <label class="month-ctl compact">
+        <span class="sr-only">Тайлангийн сар</span>
+        <select id="month2" class="month-sel"></select>
+        <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
+      </label>
+      <button type="button" class="icon-btn" id="to-top" aria-label="Дээш буцах"><svg class="ic" aria-hidden="true"><use href="#i-up"/></svg></button>
+    </div>
+  </div>
+
+  <main id="app" class="page" aria-busy="true">
+    <!-- Two compact rows: identity + report month; shortcuts + as-of -->
+    <header class="head" id="head" hidden>
+      <div class="head-row">
+        <div class="who-top">
+          <h1 id="store-name"></h1>
+          <span class="code" id="store-code"></span>
+          <span class="who-sub" id="store-sub"></span>
+        </div>
+        <label class="month-ctl">
+          <span class="month-label">Сар</span>
+          <select id="month" class="month-sel" aria-label="Тайлангийн сар"></select>
+          <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
+        </label>
+      </div>
+      <div class="head-row">
+        <div class="head-actions">
+          <button type="button" class="prog-btn" id="as-btn" aria-haspopup="dialog">
+            <svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>Барааны карт<span class="badge num" id="as-count"></span></button>
+          <button type="button" class="prog-btn" id="prog-btn" aria-haspopup="dialog">
+            <svg class="ic" aria-hidden="true"><use href="#i-flag"/></svg>Харилцагчийн хөтөлбөр<span class="badge num" id="prog-count"></span></button>
+          <button type="button" class="info-btn" id="more-btn" aria-expanded="false" aria-controls="store-dl">
+            <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>Дэлгэрэнгүй</button>
+          <a class="info-btn" id="to-lookup" href="?view=lookup" data-nav><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>Өөр код</a>
+        </div>
+        <p class="asof"><span class="pill-demo"><span class="dot" aria-hidden="true"></span>Демо</span><span id="asof"></span></p>
+      </div>
+    </header>
+    <dl class="dl" id="store-dl" hidden></dl>
+
+    <div class="grid" id="report" hidden>
+      <!-- (a) Monthly pull + plan -->
+      <section class="card card-amount" aria-labelledby="h-amount">
+        <div class="card-h">
+          <h2 id="h-amount">Татан авалт</h2>
+          <span class="period" id="period"></span>
+        </div>
+        <p class="big num" id="amount"></p>
+        <div class="actions" role="group" aria-label="Энэ сарын дэлгэрэнгүй">
+          <button type="button" class="act" data-go="products"><svg class="ic" aria-hidden="true"><use href="#i-box"/></svg>Бараа <b id="act-products"></b></button>
+          <button type="button" class="act" data-go="brands"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg>Брэнд <b id="act-brands"></b></button>
+          <button type="button" class="act" data-go="categories"><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg>Категори <b id="act-categories"></b></button>
+        </div>
+        <div class="plan">
+          <div class="row"><span class="lbl">Төлөвлөгөө</span><span class="num strong" id="plan"></span></div>
+          <div class="track" id="plan-track" role="progressbar" aria-labelledby="h-amount" aria-valuemin="0" aria-valuemax="100"><span id="plan-fill"></span></div>
+          <div class="row"><span class="num pct" id="plan-pct"></span><span class="num" id="plan-left"></span></div>
+        </div>
+      </section>
+
+      <!-- (b) Tier + bonus + next tier gap -->
+      <section class="card card-tier" aria-labelledby="h-tier">
+        <div class="card-h">
+          <h2 id="h-tier">Урамшууллын түвшин</h2>
+          <button type="button" class="link-btn cond-btn" id="cond-btn" aria-haspopup="dialog">Нөхцөл<span class="muted">· жишиг</span><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+        </div>
+        <div class="tier-now"><p class="anchor num" id="anchor"></p><span class="tier-badge" id="tier-badge"></span></div>
+        <ol class="ladder" id="ladder" aria-label="Түвшний шат"></ol>
+        <div class="row bonus"><span class="lbl" id="bonus-lbl"></span><span class="num strong" id="bonus"></span></div>
+        <div class="row next-bonus" id="next-bonus"><span class="lbl" id="next-bonus-lbl"></span><span class="num" id="next-bonus-v"></span></div>
+      </section>
+
+      <!-- History: 12 calendar months, money or liters; one readout with the money plan -->
+      <section class="card card-hist" aria-labelledby="h-hist">
+        <div class="hist-h">
+          <div class="hist-t">
+            <h2 id="h-hist">Татан авалт · 12 сар</h2>
+            <p class="hist-sub"><span class="num" id="trend-range"></span> · <span id="metric-sub"></span></p>
+          </div>
+          <button type="button" class="icon-btn" id="lit-info" aria-expanded="false" aria-controls="lit-note" aria-label="Литрийг хэрхэн тооцсон" hidden><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg></button>
+          <div class="seg metric" role="group" aria-label="Графикийн хэмжүүр">
+            <button type="button" class="seg-btn" data-metric="amount" aria-pressed="true">Мөнгөн дүн</button>
+            <button type="button" class="seg-btn" data-metric="liters" aria-pressed="false">Литр</button>
+          </div>
+        </div>
+        <p class="lit-note" id="lit-note" hidden></p>
+        <p class="chart-cap">
+          <span class="leg leg-avg"><i aria-hidden="true"></i>Дундаж <b class="num" id="avg"></b> <span class="num" id="avg-months"></span></span>
+          <span class="leg leg-ok"><span class="okm" aria-hidden="true"><svg><use href="#i-check"/></svg></span>Мөнгөн төлөвлөгөө биелсэн</span>
+          <span class="leg leg-part" id="leg-part" hidden><i aria-hidden="true"></i><span id="leg-part-t"></span></span>
+        </p>
+        <div class="chart" id="chart" role="group" aria-label="12 сарын татан авалт. Багана эсвэл өмнөх/дараагийн сарын товчоор сонгоход яг утга нь доор гарна.">
+          <div class="avg-line" id="avg-line" aria-hidden="true"></div>
+          <div class="cols c12" id="cols"></div>
+        </div>
+        <div class="inspect" id="inspect">
+          <button type="button" class="icon-btn step" id="insp-prev" aria-label="Өмнөх сар" aria-disabled="false"><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg></button>
+          <p class="readout num" id="readout" aria-live="polite"></p>
+          <button type="button" class="icon-btn step" id="insp-next" aria-label="Дараагийн сар" aria-disabled="true"><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+          <button type="button" class="btn-sec" id="insp-open" hidden></button>
+        </div>
+      </section>
+
+      <!-- Entity lists: Бараа | Брэнд | Категори (+ helper: Авсан өдрүүд) -->
+      <section class="card card-detail" id="detail" aria-label="Дэлгэрэнгүй">
+        <div class="tabs" role="tablist" aria-label="Дэлгэрэнгүй харах">
+          <button role="tab" id="tab-products" aria-controls="panel-products" aria-selected="true">Бараа <span class="count" id="count-products"></span></button>
+          <button role="tab" id="tab-brands" aria-controls="panel-brands" aria-selected="false" tabindex="-1">Брэнд <span class="count" id="count-brands"></span></button>
+          <button role="tab" id="tab-categories" aria-controls="panel-categories" aria-selected="false" tabindex="-1">Категори <span class="count" id="count-categories"></span></button>
+          <button role="tab" id="tab-days" class="tab-aux" aria-controls="panel-days" aria-selected="false" tabindex="-1">Авсан өдрүүд <span class="count" id="count-days"></span></button>
+        </div>
+
+        <div role="tabpanel" id="panel-products" aria-labelledby="tab-products">
+          <div class="tools">
+            <label class="search">
+              <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="q" placeholder="Бараа хайх" aria-label="Бараа хайх" autocomplete="off">
+            </label>
+            <label class="sort">
+              <span class="sr-only">Эрэмбэлэх</span>
+              <select id="sort" aria-label="Эрэмбэлэх">
+                <option value="amount">Дүнгээр</option>
+                <option value="quantity">Ширхэгээр</option>
+                <option value="last">Сүүлд авснаар</option>
+                <option value="name">Нэрээр</option>
+              </select>
+              <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
+            </label>
+          </div>
+          <div class="table-wrap">
+            <table class="tbl" id="tbl-products">
+              <thead><tr><th scope="col">Бараа</th><th scope="col" class="r">Ширхэг</th><th scope="col" class="r">Дүн</th><th scope="col" class="r col-last">Сүүлд авсан</th><th scope="col" class="go"><span class="sr-only">Дэлгэрэнгүй</span></th></tr></thead>
+              <tbody id="rows-products"></tbody>
+              <tfoot id="foot-products"></tfoot>
+            </table>
+          </div>
+          <p class="empty" id="empty-products" hidden></p>
+          <div class="list-foot">
+            <span class="muted" id="shown-products"></span>
+            <button type="button" class="btn-sec" id="toggle-all"></button>
+          </div>
+        </div>
+
+        <div role="tabpanel" id="panel-brands" aria-labelledby="tab-brands" hidden>
+          <ul class="cats" id="brands"></ul>
+          <p class="empty" id="empty-brands" hidden>Энэ сард авалт бүртгэгдээгүй.</p>
+          <div class="list-foot"><span class="muted" id="brands-note"></span><span class="num"><span class="muted">Сарын нийт</span> <b id="sum-brands"></b></span></div>
+        </div>
+
+        <div role="tabpanel" id="panel-categories" aria-labelledby="tab-categories" hidden>
+          <ul class="cats" id="cats"></ul>
+          <p class="empty" id="empty-categories" hidden>Энэ сард авалт бүртгэгдээгүй.</p>
+          <div class="list-foot"><span class="muted" id="cats-note"></span><span class="num"><span class="muted">Сарын нийт</span> <b id="sum-categories"></b></span></div>
+        </div>
+
+        <div role="tabpanel" id="panel-days" aria-labelledby="tab-days" hidden>
+          <ul class="days" id="days"></ul>
+          <p class="empty" id="empty-days" hidden></p>
+          <div class="list-foot" id="days-foot"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="state" id="state" hidden>
+      <h1 id="state-title"></h1>
+      <p id="state-text"></p>
+      <a class="btn" id="state-link" href="./"></a>
+      <p class="state-alt"><a class="link-btn" href="?view=lookup" data-nav>Өөр код оруулах</a></p>
+    </section>
+
+    <!-- Code entry (?view=lookup): the Telegram menu button opens this; a valid code opens that store's report -->
+    <section class="lookup" id="lookup" aria-labelledby="lk-title" hidden>
+      <p class="asof"><span class="pill-demo"><span class="dot" aria-hidden="true"></span>Демо</span><span>Зохиомол өгөгдөл</span></p>
+      <h1 id="lk-title">Дэлгүүрийн цонх</h1>
+      <p class="lk-sub">Харилцагчийн кодоо оруулна уу.</p>
+      <form class="lk-form" id="lk-form" novalidate>
+        <label class="sr-only" for="lk-code">Харилцагчийн код</label>
+        <input class="lk-input" id="lk-code" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"
+          enterkeyhint="go" maxlength="32" placeholder="ST-13204" aria-describedby="lk-msg lk-hint">
+        <button type="submit" class="btn lk-go">Нээх</button>
+      </form>
+      <p class="lk-msg" id="lk-msg" role="alert" hidden></p>
+      <p class="lk-hint" id="lk-hint">Жишээ код: <button type="button" class="link-btn" id="lk-sample"></button></p>
+    </section>
+  </main>
+
+  <!-- One right drawer for every detail: product, brand, category, product card (assortment), programs.
+       Views stack inside it (brand → product → back), so a second modal is never opened. -->
+  <dialog class="sheet side" id="dr" aria-labelledby="dr-title">
+    <div class="sheet-h">
+      <div class="sheet-ttl">
+        <button type="button" class="back-btn" id="dr-back" hidden><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg><span id="dr-back-lbl">Буцах</span></button>
+        <p class="dr-kind" id="dr-kind"></p>
+        <h2 id="dr-title"></h2>
+        <p id="dr-sub"></p>
+      </div>
+      <button type="button" class="icon-btn x" data-close aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="sheet-b" id="dr-body"></div>
+  </dialog>
+
+  <!-- Conditions: small centered dialog -->
+  <dialog class="sheet center" id="cd" aria-labelledby="cd-title">
+    <div class="sheet-h">
+      <div class="sheet-ttl"><h2 id="cd-title">Урамшууллын нөхцөл</h2><p>Жишиг нөхцөл, батлагдаагүй</p></div>
+      <button type="button" class="icon-btn x" data-close aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="sheet-b">
+      <table class="cond-table">
+        <caption class="sr-only">Урамшууллын жишиг нөхцөл</caption>
+        <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+        <thead><tr><th scope="col">Сарын татан авалт</th><th scope="col">Түвшин</th><th scope="col" class="r">Хувь</th></tr></thead>
+        <tbody id="cond-rows"></tbody>
+      </table>
+      <p class="note">Сарын нийт дүн аль интервалд орсноор хувь тогтож, тэр хувь нийт дүнд үйлчилнэ.</p>
+    </div>
+  </dialog>
+
+  <script src="data/fixture.js?v=2f6c51e2f9"></script>
+  <script src="data/registry.js?v=b7effbf5d0"></script>
+  <script src="assets/stores.js?v=85cad720c5"></script>
+  <script src="assets/app.js?v=aae234d766"></script>
+</body>
+</html>
