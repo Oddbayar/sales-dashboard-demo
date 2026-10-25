@@ -540,7 +540,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .ctxbar { padding-top: var(--sat); }
 .sheet.side { padding-top: var(--sat); padding-bottom: var(--sab); }
 .state-alt { margin-top: 10px; }
-a.info-btn, .state-alt .link-btn { text-decoration: none; }
+a.info-btn, a.back-btn, .state-alt .link-btn { text-decoration: none; }
+.route-back { align-self: flex-start; margin: -10px 0 0 -6px; }
 .lookup { max-width: 440px; margin: 8vh auto 0; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh-1); }
 .lookup h1 { margin-top: 12px; font-size: 24px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em; }
 .lk-sub { margin-top: 4px; font-size: 15px; color: var(--ink-2); }
@@ -555,3 +556,9 @@ a.info-btn, .state-alt .link-btn { text-decoration: none; }
 .lk-hint { margin-top: 12px; display: flex; align-items: center; gap: 4px; font-size: 14px; color: var(--ink-3); }
 .lk-hint .link-btn { margin: 0; }
 @media (max-width: 640px) { .lookup { margin-top: 4vh; padding: 20px 16px; } }
+
+/* ===== Claude 19: «Цэс» (shared workspace menu, ../rep-home/assets/workspace.css) placed in existing header rows ===== */
+.head-tools { display: flex; align-items: center; gap: 8px; flex: none; }
+.lk-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.state .ws-top { display: flex; justify-content: flex-end; margin: -14px -14px 2px 0; }
+@media (max-width: 640px) { .head-row:first-child .head-tools .month-ctl { flex: 1; } }

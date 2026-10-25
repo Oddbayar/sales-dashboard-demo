@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="mn" data-ws-module="route">
+<head>
+  <meta charset="utf-8">
+  <meta name="build" content="d5f42f2a4471">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Миний маршрут · Демо</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232563EB%27/%3E%3Cpath d=%27M9 23V9l7 5 7-5v14%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+  <link rel="preload" href="../store-report/assets/fonts/Inter-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- one product: the store report's tokens, fonts, tabs, chips, drawer and mini-chart styles, plus a small route layer -->
+  <link rel="stylesheet" href="../store-report/assets/styles.css?v=dc400e76ac">
+  <link rel="stylesheet" href="assets/route.css?v=5d0226a6e0">
+  <link rel="stylesheet" href="../rep-home/assets/workspace.css?v=bbddbcee05">
+  <!-- Optional: official Telegram Mini App SDK. Async, so the page works without it (plain browser, offline, blocked). -->
+  <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.WS && window.WS.tgInit()"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 10l1.5-5h13L20 10M4 10h16M4 10v9h16v-9M9 19v-5h6v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <main id="app" class="page rr" aria-busy="true">
+    <header class="rr-head" id="head" hidden>
+      <div class="rr-who">
+        <h1>Миний маршрут</h1>
+        <p class="rr-sub" id="rep-label"></p>
+      </div>
+      <div class="rr-side">
+        <p class="asof"><span class="pill-demo"><span class="dot" aria-hidden="true"></span>Демо</span><span id="asof"></span></p>
+        <div data-ws-menu></div>
+      </div>
+    </header>
+
+    <div class="tabs rr-tabs" role="tablist" aria-label="Харагдац" id="tabs" hidden>
+      <button role="tab" id="tab-route" aria-controls="panel-route" aria-selected="true">Маршрут</button>
+      <button role="tab" id="tab-customers" aria-controls="panel-customers" aria-selected="false" tabindex="-1">Харилцагчид <span class="count" id="count-roster"></span></button>
+    </div>
+
+    <!-- A. Route: the sample schedule order; sorting only changes what is shown first, never the schedule № -->
+    <section class="card rr-card" role="tabpanel" id="panel-route" aria-labelledby="tab-route" hidden>
+      <div class="route-bar" id="route-bar">
+        <button type="button" class="icon-btn step" id="day-prev" aria-label="Өмнөх маршрутын өдөр"><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg></button>
+        <div class="day-pick" id="day-pick">
+          <span class="lbl">Жишиг өдөр</span>
+          <span class="day-val num" id="day-val" aria-hidden="true"></span>
+          <input type="date" class="day-native" id="day" aria-label="Маршрутын өдөр">
+        </div>
+        <button type="button" class="icon-btn step" id="day-next" aria-label="Дараагийн маршрутын өдөр"><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+        <label class="sort rt-sort"><span class="sr-only">Маршрутын эрэмбэ</span><select id="rt-sort" aria-label="Маршрутын эрэмбэ">
+          <option value="">Хуваарийн дараалал</option><option value="visit_old">Удаан очоогүйгээс</option><option value="visit_new">Сүүлд очсоноос</option></select><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></label>
+      </div>
+      <div class="route-tools">
+        <label class="search sm"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="rt-q" placeholder="Маршрутаас нэр, код" aria-label="Маршрутаас дэлгүүрийн нэр эсвэл кодоор хайх" autocomplete="off" maxlength="40"></label>
+        <p class="route-count num" id="route-count" aria-live="polite"></p>
+        <button type="button" class="btn-sec" id="rt-clear" hidden>Цэвэрлэх</button>
+      </div>
+      <div class="route-links">
+        <button type="button" class="attn-link" id="rt-attn"><svg class="ic" aria-hidden="true"><use href="#i-flag"/></svg><span>Энэ маршрутад анхаарах <b class="num" id="rt-attn-n"></b></span><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+        <button type="button" class="link-btn" id="rt-all">Маршрутын <b class="num" id="rt-all-n"></b> харилцагч<svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+        <button type="button" class="link-btn" id="attn-link">Нийт портфель: анхаарах <b class="num" id="attn-n"></b><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+      </div>
+      <div class="rt-head" aria-hidden="true"><span>№</span><span>Дэлгүүр</span><span>Анхаарах</span><span>Сүүлд очсон</span><span></span></div>
+      <ol class="route-list" id="route-list"></ol>
+      <p class="empty" id="route-empty" hidden></p>
+      <details class="rr-rules"><summary>Тайлбар</summary><div id="route-note"></div></details>
+    </section>
+
+    <!-- B. Customers: every assigned customer, 12-month signals, compact sorted list -->
+    <section class="card rr-card" role="tabpanel" id="panel-customers" aria-labelledby="tab-customers" hidden>
+      <p class="cu-sum num" id="cu-sum"></p>
+      <div class="seg cu-chips" role="group" aria-label="Ангилал" id="cu-chips"></div>
+      <div class="cu-tools">
+        <label class="search sm"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="cu-q" placeholder="Дэлгүүрийн нэр, код" aria-label="Дэлгүүрийн нэр эсвэл кодоор хайх" autocomplete="off" maxlength="40"></label>
+        <button type="button" class="btn-sec cu-more" id="cu-more" aria-expanded="false" aria-controls="cu-rec cu-aimag cu-type">Шүүлт<span class="count num" id="cu-more-n" hidden></span></button>
+        <label class="sort cu-sec"><span class="sr-only">Бүртгэл</span><select id="cu-rec" aria-label="Бүртгэл"><option value="all">Бүх бүртгэл</option><option value="current">Одоогийн бүртгэл</option><option value="old">Хуучин бүртгэл</option></select><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></label>
+        <label class="sort cu-sec"><span class="sr-only">Аймаг</span><select id="cu-aimag" aria-label="Аймаг"></select><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></label>
+        <label class="sort cu-sec"><span class="sr-only">Төрөл</span><select id="cu-type" aria-label="Харилцагчийн төрөл"></select><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></label>
+        <label class="sort"><span class="sr-only">Эрэмбэ</span><select id="cu-sort" aria-label="Эрэмбэлэх"></select><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></label>
+        <button type="button" class="scope-chip" id="cu-scope" hidden></button>
+        <button type="button" class="btn-sec" id="cu-reset" hidden>Цэвэрлэх</button>
+      </div>
+      <p class="cu-count num" id="cu-count" aria-live="polite"></p>
+      <div class="cu-head" aria-hidden="true"><span>Харилцагч</span><span>12 сарын дүн</span><span>Өмнөх 3 сараас</span><span>Сүүлийн авалт</span><span>12 сар</span></div>
+      <div id="cu-list"></div>
+      <p class="empty" id="cu-empty" hidden></p>
+      <details class="rr-rules"><summary>Тооцоолол</summary><div id="rules-text"></div></details>
+    </section>
+
+    <section class="state" id="state" hidden><h1 id="state-title"></h1><p id="state-text"></p></section>
+  </main>
+
+  <!-- customer detail: the same right drawer as the store report -->
+  <dialog class="sheet side" id="dr" aria-labelledby="dr-title">
+    <div class="sheet-h">
+      <div class="sheet-ttl">
+        <p class="dr-kind" id="dr-kind"></p>
+        <h2 id="dr-title"></h2>
+        <p id="dr-sub"></p>
+      </div>
+      <button type="button" class="icon-btn x" data-close aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="sheet-b" id="dr-body"></div>
+  </dialog>
+
+  <script src="data/fixture.js?v=437a3a1e41"></script>
+  <script src="../store-report/data/registry.js?v=884a20f4dc"></script>
+  <script src="../rep-home/assets/workspace.js?v=ddec6634f4"></script>
+  <script src="assets/route.js?v=5c29ebc763"></script>
+</body>
+</html>

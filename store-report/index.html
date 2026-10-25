@@ -1,14 +1,15 @@
 <!doctype html>
-<html lang="mn">
+<html lang="mn" data-ws-module="store">
 <head>
   <meta charset="utf-8">
-  <meta name="build" content="ebf1e2994e81">
+  <meta name="build" content="5599f2ad31c9">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <title>Дэлгүүрийн тайлан · Демо</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232563EB%27/%3E%3Cpath d=%27M8 21l5-6 4 3 7-8%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
   <link rel="preload" href="assets/fonts/Inter-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/styles.css?v=6245f76fba">
+  <link rel="stylesheet" href="assets/styles.css?v=dc400e76ac">
+  <link rel="stylesheet" href="../rep-home/assets/workspace.css?v=bbddbcee05">
   <!-- Optional: official Telegram Mini App SDK. Async so the report and code entry work without it (plain browser, offline). -->
   <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.StoreReport && window.StoreReport.telegram()"></script>
 </head>
@@ -61,17 +62,21 @@
   <main id="app" class="page" aria-busy="true">
     <!-- Two compact rows: identity + report month; shortcuts + as-of -->
     <header class="head" id="head" hidden>
+      <a class="back-btn route-back" id="to-route" href="../rep-route/" data-nav hidden><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg>Миний маршрут руу буцах</a>
       <div class="head-row">
         <div class="who-top">
           <h1 id="store-name"></h1>
           <span class="code" id="store-code"></span>
           <span class="who-sub" id="store-sub"></span>
         </div>
-        <label class="month-ctl">
-          <span class="month-label">Сар</span>
-          <select id="month" class="month-sel" aria-label="Тайлангийн сар"></select>
-          <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
-        </label>
+        <div class="head-tools">
+          <label class="month-ctl">
+            <span class="month-label">Сар</span>
+            <select id="month" class="month-sel" aria-label="Тайлангийн сар"></select>
+            <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
+          </label>
+          <div data-ws-menu></div>
+        </div>
       </div>
       <div class="head-row">
         <div class="head-actions">
@@ -212,6 +217,7 @@
     </div>
 
     <section class="state" id="state" hidden>
+      <div class="ws-top" data-ws-menu></div>
       <h1 id="state-title"></h1>
       <p id="state-text"></p>
       <a class="btn" id="state-link" href="./"></a>
@@ -220,7 +226,10 @@
 
     <!-- Code entry (?view=lookup): the Telegram menu button opens this; a valid code opens that store's report -->
     <section class="lookup" id="lookup" aria-labelledby="lk-title" hidden>
-      <p class="asof"><span class="pill-demo"><span class="dot" aria-hidden="true"></span>Демо</span><span>Зохиомол өгөгдөл</span></p>
+      <div class="lk-top">
+        <p class="asof"><span class="pill-demo"><span class="dot" aria-hidden="true"></span>Демо</span><span>Зохиомол өгөгдөл</span></p>
+        <div data-ws-menu></div>
+      </div>
       <h1 id="lk-title">Дэлгүүрийн цонх</h1>
       <p class="lk-sub">Харилцагчийн кодоо оруулна уу.</p>
       <form class="lk-form" id="lk-form" novalidate>
@@ -266,9 +275,9 @@
     </div>
   </dialog>
 
-  <script src="data/fixture.js?v=332e5b0c10"></script>
-  <script src="data/registry.js?v=2b08a66ddd"></script>
+  <script src="../rep-home/assets/workspace.js?v=ddec6634f4"></script>
+  <script src="data/registry.js?v=884a20f4dc"></script>
   <script src="assets/stores.js?v=d5ed83df57"></script>
-  <script src="assets/app.js?v=56d53b007c"></script>
+  <script src="assets/app.js?v=a20b823cb3"></script>
 </body>
 </html>

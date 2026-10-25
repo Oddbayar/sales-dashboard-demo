@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="mn" data-ws-module="home">
+<head>
+  <meta charset="utf-8">
+  <meta name="build" content="92cf36184981">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Миний ажил · Демо</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232563EB%27/%3E%3Cpath d=%27M8 8h7v7H8zM17 8h7v7h-7zM8 17h7v7H8zM17 17h7v7h-7z%27 fill=%27white%27/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/Inter-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/home.css?v=525a15c539">
+  <!-- Optional: official Telegram Mini App SDK. Async, so the page works without it (plain browser, offline, blocked). -->
+  <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.WS && window.WS.tgInit()"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 10l1.5-5h13L20 10M4 10h16M4 10v9h16v-9M9 19v-5h6v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a3 3 0 0 1 3-3h7M18 9v6a3 3 0 0 1-3 3H8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-perf" viewBox="0 0 24 24"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9M3 20h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <main class="hm" id="app">
+    <header class="hm-head">
+      <div>
+        <h1>Миний ажил</h1>
+        <p class="hm-sub" id="rep-label">Худалдааны төлөөлөгч · SR-073</p>
+      </div>
+      <span class="hm-pill"><span class="hm-dot" aria-hidden="true"></span>Демо</span>
+    </header>
+
+    <!-- the three windows; hrefs are plain relative links (they work without JS), workspace.js adds the session state -->
+    <nav class="hm-grid" id="links" aria-label="Миний ажил">
+      <a class="hm-card" data-m="store" data-ws-nav href="../store-report/?view=lookup">
+        <span class="hm-ic"><svg aria-hidden="true"><use href="#i-store"/></svg></span>
+        <span class="hm-t"><b>Дэлгүүрийн цонх</b><span>Кодоор дэлгүүрийн мэдээлэл харах</span></span>
+        <svg class="hm-go" aria-hidden="true"><use href="#i-right"/></svg>
+      </a>
+      <a class="hm-card" data-m="route" data-ws-nav href="../rep-route/">
+        <span class="hm-ic"><svg aria-hidden="true"><use href="#i-route"/></svg></span>
+        <span class="hm-t"><b>Миний маршрут</b><span>Өдрийн маршрут, харилцагчид</span></span>
+        <svg class="hm-go" aria-hidden="true"><use href="#i-right"/></svg>
+      </a>
+      <a class="hm-card" data-m="performance" data-ws-nav href="../rep-performance/?rep=SR-073">
+        <span class="hm-ic"><svg aria-hidden="true"><use href="#i-perf"/></svg></span>
+        <span class="hm-t"><b>Миний гүйцэтгэл</b><span>Төлөвлөгөөний биелэлт, 12 сарын түүх</span></span>
+        <svg class="hm-go" aria-hidden="true"><use href="#i-right"/></svg>
+      </a>
+    </nav>
+
+    <section class="hm-state" id="state" hidden><h2 id="state-title"></h2><p id="state-text"></p><a class="hm-btn" id="state-link" data-ws-nav href="?rep=SR-073"></a></section>
+  </main>
+
+  <script src="assets/workspace.js?v=ddec6634f4"></script>
+  <script src="assets/home.js?v=a9f7481113"></script>
+</body>
+</html>

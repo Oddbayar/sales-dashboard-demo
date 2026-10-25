@@ -1,0 +1,24 @@
+/* «Цэс» menu shared by the four pages: a compact header button + a small popover (never a second drawer).
+   Own ws- classes with literal values matching the product tokens (white/slate, one blue accent, Inter, 44px targets). */
+.ws-slot { position: relative; display: inline-flex; flex: none; }
+.ws-menu-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px;
+  border: 1px solid #E4E7EC; border-radius: 8px; background: #FFFFFF; font: 500 14px "Inter", "Segoe UI", "Noto Sans", Arial, sans-serif; color: #1D4ED8;
+  cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.ws-menu-btn:hover, .ws-menu-btn[aria-expanded="true"] { background: #EEF3FE; border-color: #C7D7FD; }
+.ws-menu-btn:focus-visible, .ws-pop a:focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; }
+.ws-ic { width: 18px; height: 18px; flex: none; }
+.ws-pop { position: absolute; z-index: 40; top: calc(100% + 6px); right: 0; width: min(290px, calc(100vw - 24px)); padding: 6px;
+  background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 12px; box-shadow: 0 8px 24px rgba(16, 24, 40, .14), 0 1px 3px rgba(16, 24, 40, .06);
+  font-family: "Inter", "Segoe UI", "Noto Sans", Arial, sans-serif; text-align: left; }
+.ws-pop[hidden] { display: none; }
+.ws-pop ul { margin: 4px 0 0; padding: 4px 0 0; list-style: none; border-top: 1px solid #EEF1F4; }
+.ws-pop a { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 10px; border-radius: 8px; color: #0F172A; text-decoration: none; cursor: pointer; }
+.ws-pop a:hover { background: #F8FAFC; }
+.ws-pop .ws-home { min-height: 44px; font-size: 14px; font-weight: 500; color: #3B4558; }
+.ws-pop .ws-home .ws-ic, .ws-item .ws-ic { color: #5F6B7D; }
+.ws-t { display: grid; min-width: 0; }
+.ws-t b { font-size: 15px; line-height: 20px; font-weight: 600; }
+.ws-t small { font-size: 12px; line-height: 16px; color: #1D4ED8; font-weight: 500; }
+.ws-item.is-active { background: #EEF3FE; box-shadow: inset 3px 0 0 #2563EB; }
+.ws-item.is-active .ws-ic { color: #1D4ED8; }
+@media (prefers-reduced-motion: reduce) { .ws-pop { transition: none; } }

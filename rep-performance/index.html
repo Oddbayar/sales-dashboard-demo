@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="mn" data-ws-module="performance">
+<head>
+  <meta charset="utf-8">
+  <meta name="build" content="9ce8d7d995f4">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Миний гүйцэтгэл · Демо</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232563EB%27/%3E%3Cpath d=%27M9 23v-5M16 23V9M23 23v-9%27 stroke=%27white%27 stroke-width=%273%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/Inter-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- own tokens/fonts/drawer (copied from the store report); the only shared runtime file is the workspace menu/Telegram glue -->
+  <link rel="stylesheet" href="assets/app.css?v=19547077ae">
+  <link rel="stylesheet" href="../rep-home/assets/workspace.css?v=bbddbcee05">
+  <!-- Optional: official Telegram Mini App SDK. Async, so the page works without it (plain browser, offline, blocked). -->
+  <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.WS && window.WS.tgInit()"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19h16M7 15l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 5v14M8 19l-3-3M8 19l3-3M16 19V5M16 5l-3 3M16 5l3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <main id="app" class="rp" aria-busy="true">
+    <header class="rp-head" id="head" hidden>
+      <div>
+        <h1>Миний гүйцэтгэл</h1>
+        <p class="rp-sub" id="rep-label"></p>
+      </div>
+      <div class="rp-meta">
+        <div class="rp-meta-top">
+          <p class="rp-asof"><span class="rp-pill"><span class="dot" aria-hidden="true"></span>Демо</span><span id="asof"></span></p>
+          <div data-ws-menu></div>
+        </div>
+        <details class="rp-info">
+          <summary><span id="plan-tag"></span><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg></summary>
+          <div class="rp-pop" id="plan-note"></div>
+        </details>
+      </div>
+    </header>
+
+    <p class="rp-notice" id="notice" role="status" hidden></p>
+
+    <!-- the cutoff month: always this month, whatever month the drawer shows -->
+    <section class="rp-sec" id="cur" aria-labelledby="cur-h" hidden>
+      <div class="rp-sec-h">
+        <div><p class="rp-kick">Явж буй сар</p><h2 id="cur-h"></h2></div>
+        <button type="button" class="rp-btn" id="cur-open"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg>Сар доторх явцыг харах</button>
+      </div>
+      <div class="rp-cards" id="cur-cards"></div>
+    </section>
+
+    <!-- 12 full months: a year chart (one attainment-% column per month, default) or the compact two-metric list -->
+    <section class="rp-sec rp-card" id="hist" aria-labelledby="hist-h" hidden>
+      <div class="rp-sec-h rp-hist-h">
+        <div><p class="rp-kick">Өмнөх 12 бүтэн сарын биелэлт</p><h2 id="hist-h"></h2></div>
+        <div class="rp-hctl">
+          <div class="rp-seg" role="group" aria-label="Жилийн графикийн хэмжүүр" id="y-metric"></div>
+          <button type="button" class="rp-btn rp-ghost" id="sort" hidden><svg class="ic" aria-hidden="true"><use href="#i-sort"/></svg><span id="sort-l"></span></button>
+          <div class="rp-seg" role="group" aria-label="Харагдац" id="h-view">
+            <button type="button" data-hv="chart" aria-pressed="true">График</button><button type="button" data-hv="list" aria-pressed="false">Жагсаалт</button>
+          </div>
+        </div>
+      </div>
+      <div id="h-chart">
+        <div class="rp-yc" id="yc">
+          <div class="rp-yaxis" id="y-axis" aria-hidden="true"></div>
+          <div class="rp-yscroll" id="y-scroll">
+            <div class="rp-yinner">
+              <div class="rp-ygrid" id="y-grid" aria-hidden="true"></div>
+              <ol class="rp-ycols" id="y-cols"></ol>
+              <div class="rp-years" id="y-years" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+        <p class="rp-hint">Сар дээр дарж өдөр тутмын явцыг харна<span class="rp-hint-ph"> · хажуу тийш гүйлгэнэ</span></p>
+      </div>
+      <div id="h-list" hidden>
+        <div class="rp-lhead" aria-hidden="true"><span>Сар</span><span id="lh-0"></span><span id="lh-1"></span><span></span></div>
+        <ol class="rp-list" id="list"></ol>
+      </div>
+    </section>
+
+    <section class="rp-state" id="state" hidden><div class="ws-top" data-ws-menu></div><h1 id="state-title"></h1><p id="state-text"></p><a class="rp-btn rp-primary" id="state-link" hidden></a></section>
+  </main>
+
+  <dialog class="rp-sheet" id="dr" aria-labelledby="dr-title" aria-describedby="dr-sub">
+    <div class="rp-sheet-h">
+      <div class="rp-sheet-top">
+        <div class="rp-sheet-ttl"><h2 id="dr-title"></h2><p id="dr-sub"></p></div>
+        <button type="button" class="rp-icon" data-close aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <nav class="rp-mnav" aria-label="Сар солих">
+        <button type="button" class="rp-btn" id="m-prev"><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg><span>Өмнөх сар</span><b class="num" id="m-prev-l"></b></button>
+        <button type="button" class="rp-btn" id="m-next"><span>Дараагийн сар</span><b class="num" id="m-next-l"></b><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+      </nav>
+    </div>
+    <div class="rp-sheet-b">
+      <div class="rp-dsum" id="dsum"></div>
+      <div class="rp-ctl">
+        <div class="rp-seg" role="group" aria-label="Графикийн хэмжүүр" id="seg-metric"></div>
+        <div class="rp-seg" role="group" aria-label="Графикийн төрөл" id="seg-view">
+          <button type="button" data-view="cum">Хуримтлагдсан</button><button type="button" data-view="daily">Өдөр бүр</button>
+        </div>
+      </div>
+      <div class="rp-legend" id="legend"></div>
+      <div class="rp-chart" id="chart" tabindex="0" role="slider" aria-label="Өдөр сонгох график" aria-valuemin="1"></div>
+      <div class="rp-inspect">
+        <button type="button" class="rp-step" id="d-prev" aria-label="Өмнөх өдөр"><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg><span aria-hidden="true">өдөр</span></button>
+        <div class="rp-readout" id="readout" aria-live="polite"></div>
+        <button type="button" class="rp-step" id="d-next" aria-label="Дараагийн өдөр"><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg><span aria-hidden="true">өдөр</span></button>
+      </div>
+      <p class="rp-ref" id="ref-note"></p>
+      <details class="rp-days" id="days">
+        <summary>Өдөр бүрийн дүн<svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></summary>
+        <table class="rp-tbl">
+          <thead><tr><th scope="col">Өдөр</th><th scope="col" id="th-0"></th><th scope="col" id="th-1"></th><th scope="col" id="th-cum"></th></tr></thead>
+          <tbody id="days-b"></tbody>
+        </table>
+      </details>
+    </div>
+  </dialog>
+
+  <script src="data/fixture.js?v=f9a07f2eb2"></script>
+  <script src="../rep-home/assets/workspace.js?v=ddec6634f4"></script>
+  <script src="assets/app.js?v=c55691e439"></script>
+</body>
+</html>

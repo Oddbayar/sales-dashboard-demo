@@ -130,7 +130,7 @@
 
   // ---------- state ----------
   var byYm = {};
-  var state = { month: null, tab: 'products', q: '', sort: 'amount', showAll: false, inspect: null, metric: 'amount', fromLookup: false };
+  var state = { month: null, tab: 'products', q: '', sort: 'amount', showAll: false, inspect: null, metric: 'amount', fromLookup: false, ret: null };
   var FIRST_ROWS = 8;
 
   function showState(title, text, linkText, href) {
@@ -153,15 +153,33 @@
       e.preventDefault(); nav(a.getAttribute('href'));
     });
     if (params.get('view') === 'lookup') { showLookup(params.get('store')); telegram(); return; }
-    if (!FX || !FX.months) { showState('Мэдээлэл ачаалж чадсангүй', 'Хуудсыг дахин ачаална уу.', 'Дахин ачаалах', location.pathname); return; }
+    var failed = function () { showState('Мэдээлэл ачаалж чадсангүй', 'Хуудсыг дахин ачаална уу.', 'Дахин ачаалах', location.pathname + location.search); };
+    if (!REG || !REG.stores) { failed(); return; }
     var want = (params.get('store') || '').trim();
-    if (want && SC.normalize(want) !== FX.store.code) {   // never substitutes another store's numbers
-      showState('Дэлгүүр олдсонгүй', '«' + want + '» кодтой дэлгүүрийн тайлан энэ демод алга. Одоогоор зөвхөн ' + FX.store.code + ' (' + FX.store.name + ') бэлэн.',
-        FX.store.code + ' тайлан нээх', '?store=' + encodeURIComponent(FX.store.code));
+    var code = want ? SC.normalize(want) : REG.default, entry = code && REG.stores[code];
+    if (!entry) {   // only built reports open; another store's numbers are never substituted
+      var ready = Object.keys(REG.stores);
+      showState('Дэлгүүр олдсонгүй', '«' + want + '» кодтой дэлгүүрийн тайлан энэ демод алга. Бэлэн тайлан: ' + ready.join(', ') + '.',
+        ready[0] + ' тайлан нээх', '?store=' + encodeURIComponent(ready[0]));
       telegram();
       return;
     }
+    // each report has its own fixture file (registry path); it is loaded before anything renders
+    var s = document.createElement('script');
+    s.src = entry.fixture;
+    s.onerror = failed;
+    s.onload = function () {
+      FX = window.STORE_REPORT_FIXTURE;
+      if (!FX || !FX.months || FX.store.code !== code) { failed(); return; }
+      start(params);
+    };
+    document.head.appendChild(s);
+  }
+
+  function start(params) {
     state.fromLookup = params.get('from') === 'lookup';
+    state.ret = params.get('from') === 'route' ? routeQuery(params.get('ret')) : null;
+    if (state.ret !== null) { $('to-route').href = '../rep-route/' + (state.ret ? '?' + state.ret : ''); $('to-route').hidden = false; }
     FX.months.forEach(function (m) { byYm[m.ym] = m; });
     var m = params.get('month');
     state.month = FX.selectable_months.indexOf(m) >= 0 ? m : FX.selectable_months[0];
@@ -175,6 +193,13 @@
   }
 
   function nav(url, replace) { url += location.hash; if (replace) location.replace(url); else location.assign(url); }
+  // «Миний маршрут» return state: only its own known keys with short plain values; the path is fixed (never an outside URL)
+  var ROUTE_KEYS = ['tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope'];
+  function routeQuery(raw) {
+    var src = new URLSearchParams(raw || ''), out = new URLSearchParams();
+    ROUTE_KEYS.forEach(function (k) { var v = src.get(k); if (v && v.length <= 60 && !/[<>:/\\]/.test(v)) out.set(k, v); });
+    return out.toString();
+  }
 
   // ---------- code entry (Telegram menu «Дэлгүүрийн цонх») ----------
   function showLookup(prefill) {
@@ -198,35 +223,22 @@
   }
 
   // ---------- Telegram Mini App (optional; only inside a Telegram client) ----------
-  var TG = null;
+  // The SDK setup and the ONE BackButton handler belong to the shared workspace script (../rep-home/assets/workspace.js),
+  // so a single press never runs two handlers. It closes an open «Цэс» first, then asks this page for one step.
   function telegram() {
-    var w = window.Telegram && window.Telegram.WebApp;
-    if (TG || !w || (!w.initData && w.platform === 'unknown')) return;
-    TG = w;
-    var at = function (v) { return !!(w.isVersionAtLeast && w.isVersionAtLeast(v)); };
-    try {
-      w.ready();
-      if (w.expand) w.expand();
-      if (at('6.1')) { w.setHeaderColor('#F6F7F9'); w.setBackgroundColor('#F6F7F9'); }   // the existing light design, not the chat theme
-      if (at('7.7') && w.disableVerticalSwipes) w.disableVerticalSwipes();              // drawer and list scrolling never collapse the app
-      if (at('6.1') && w.BackButton) w.BackButton.onClick(onTgBack);                     // registered once per page
-    } catch (e) { /* an older client: the page still works */ }
-    document.documentElement.classList.add('tg');
-    syncBack();
+    if (window.WS) window.WS.page({ back: onTgBack });   // without the shared script the page is a plain website
   }
-  // Telegram Back: one step inside the drawer, then close it; a report opened from the code entry goes back to it.
-  // At the root the button is hidden, so the client's own close stays the only way to leave the Mini App.
+  // one step inside the drawer or dialog; a report returns to where it was opened from (the route's state, or the code entry).
+  // false = the top of the store window (code entry, a report opened from chat, not-found): workspace.js then opens «Миний ажил».
   function onTgBack() {
     if ($('cd').open) $('cd').close();
     else if ($('dr').open) { if (drawer.stack.length > 1) popView(); else $('dr').close(); }
-    else if (state.fromLookup) nav('?view=lookup&store=' + encodeURIComponent(FX.store.code), true);
-    syncBack();
+    else if (!$('report').hidden && state.ret !== null) nav($('to-route').getAttribute('href'));
+    else if (!$('report').hidden && state.fromLookup) nav('?view=lookup&store=' + encodeURIComponent(FX.store.code), true);
+    else return false;
+    return true;
   }
-  function syncBack() {
-    if (!TG || !TG.BackButton) return;
-    var show = !$('lookup').hidden ? false : $('dr').open || $('cd').open || !!state.fromLookup;
-    if (show) TG.BackButton.show(); else TG.BackButton.hide();
-  }
+  function syncBack() { if (window.WS) window.WS.syncBack(); }
 
   function renderStatic() {
     var s = FX.store;
@@ -269,7 +281,8 @@
     renderGroup('categories', cats);
     renderDays();
     if ($('dr').open) renderDrawer(true);   // an open drawer always shows the current month (never stale)
-    var url = '?store=' + encodeURIComponent(FX.store.code) + (state.month !== FX.selectable_months[0] ? '&month=' + state.month : '') + (state.fromLookup ? '&from=lookup' : '');
+    var url = '?store=' + encodeURIComponent(FX.store.code) + (state.month !== FX.selectable_months[0] ? '&month=' + state.month : '') + (state.fromLookup ? '&from=lookup' : '') +
+      (state.ret !== null ? '&from=route' + (state.ret ? '&ret=' + encodeURIComponent(state.ret) : '') : '');
     if (location.search !== url) history.replaceState(null, '', url + location.hash);   // the hash may carry Telegram launch data
   }
 
@@ -911,7 +924,7 @@
     openEntity: function (type, key) { openDrawer({ type: type, key: key }, null); },
     openAssortment: function () { openDrawer({ type: 'assortment', filter: 'all', q: '' }, $('as-btn')); },
     openPrograms: function () { openDrawer({ type: 'programs' }, $('prog-btn')); },
-    snapshot: function () { return { month: state.month, tab: state.tab, q: state.q, inspect: state.inspect, metric: state.metric, url: location.search, fromLookup: state.fromLookup, tg: !!TG,
+    snapshot: function () { return { month: state.month, tab: state.tab, q: state.q, inspect: state.inspect, metric: state.metric, url: location.search, fromLookup: state.fromLookup, ret: state.ret, tg: !!(window.WS && window.WS.isTelegram()),
       drawer: drawer.stack.map(function (v) { return v.type + ':' + (v.key || v.filter || '') + (v.cat ? '@' + v.cat : ''); }) }; },
   };
   init();
