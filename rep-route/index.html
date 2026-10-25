@@ -2,7 +2,7 @@
 <html lang="mn" data-ws-module="route">
 <head>
   <meta charset="utf-8">
-  <meta name="build" content="d5f42f2a4471">
+  <meta name="build" content="d093e2084da2">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <title>Миний маршрут · Демо</title>
@@ -10,7 +10,7 @@
   <link rel="preload" href="../store-report/assets/fonts/Inter-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
   <!-- one product: the store report's tokens, fonts, tabs, chips, drawer and mini-chart styles, plus a small route layer -->
   <link rel="stylesheet" href="../store-report/assets/styles.css?v=dc400e76ac">
-  <link rel="stylesheet" href="assets/route.css?v=5d0226a6e0">
+  <link rel="stylesheet" href="assets/route.css?v=37047ce0f8">
   <link rel="stylesheet" href="../rep-home/assets/workspace.css?v=bbddbcee05">
   <!-- Optional: official Telegram Mini App SDK. Async, so the page works without it (plain browser, offline, blocked). -->
   <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.WS && window.WS.tgInit()"></script>
@@ -61,12 +61,7 @@
         <p class="route-count num" id="route-count" aria-live="polite"></p>
         <button type="button" class="btn-sec" id="rt-clear" hidden>Цэвэрлэх</button>
       </div>
-      <div class="route-links">
-        <button type="button" class="attn-link" id="rt-attn"><svg class="ic" aria-hidden="true"><use href="#i-flag"/></svg><span>Энэ маршрутад анхаарах <b class="num" id="rt-attn-n"></b></span><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
-        <button type="button" class="link-btn" id="rt-all">Маршрутын <b class="num" id="rt-all-n"></b> харилцагч<svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
-        <button type="button" class="link-btn" id="attn-link">Нийт портфель: анхаарах <b class="num" id="attn-n"></b><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
-      </div>
-      <div class="rt-head" aria-hidden="true"><span>№</span><span>Дэлгүүр</span><span>Анхаарах</span><span>Сүүлд очсон</span><span></span></div>
+      <div class="rt-head" aria-hidden="true"><span>№</span><span>Дэлгүүр</span><span>Сүүлд очсон</span><span></span></div>
       <ol class="route-list" id="route-list"></ol>
       <p class="empty" id="route-empty" hidden></p>
       <details class="rr-rules"><summary>Тайлбар</summary><div id="route-note"></div></details>
@@ -87,7 +82,7 @@
         <button type="button" class="btn-sec" id="cu-reset" hidden>Цэвэрлэх</button>
       </div>
       <p class="cu-count num" id="cu-count" aria-live="polite"></p>
-      <div class="cu-head" aria-hidden="true"><span>Харилцагч</span><span>12 сарын дүн</span><span>Өмнөх 3 сараас</span><span>Сүүлийн авалт</span><span>12 сар</span></div>
+      <div class="cu-head" aria-hidden="true"><span>Харилцагч</span><span>12 сарын дүн</span><span id="cu-head-chg">Өмнөх 3 сараас</span><span>Сүүлийн авалт</span><span>12 сар</span></div>
       <div id="cu-list"></div>
       <p class="empty" id="cu-empty" hidden></p>
       <details class="rr-rules"><summary>Тооцоолол</summary><div id="rules-text"></div></details>
@@ -109,9 +104,9 @@
     <div class="sheet-b" id="dr-body"></div>
   </dialog>
 
-  <script src="data/fixture.js?v=437a3a1e41"></script>
+  <script src="data/fixture.js?v=f214f549c0"></script>
   <script src="../store-report/data/registry.js?v=884a20f4dc"></script>
   <script src="../rep-home/assets/workspace.js?v=ddec6634f4"></script>
-  <script src="assets/route.js?v=5c29ebc763"></script>
+  <script src="assets/route.js?v=cbc51911c2"></script>
 </body>
 </html>

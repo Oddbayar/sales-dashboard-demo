@@ -112,7 +112,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 /* 12 full months: year chart (attainment %, one column per month) */
 .rp-hist-h { align-items: center; }
 .rp-hctl { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
-.rp-yc { --padt: 40px; --ph: 220px; --mh: 26px; position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); margin-top: 4px; }
+.rp-ytitle { margin: 4px 0 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink-3); }
+.rp-yc { --padt: 24px; --ph: 220px; --mh: 26px; position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); margin-top: 4px; }
 .rp-yaxis { position: relative; height: var(--ph); margin-top: var(--padt); }
 .rp-yaxis span { position: absolute; right: 8px; transform: translateY(50%); font-size: 12px; line-height: 14px; color: var(--ink-3); white-space: nowrap; }
 .rp-yaxis .is-100 { font-weight: 600; color: var(--ink); }
@@ -130,10 +131,11 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-col:hover { background: rgba(37, 99, 235, .05); }
 .rp-col:focus-visible { outline-offset: -2px; }
 .rp-col.is-open { background: rgba(37, 99, 235, .09); }
-.rp-cv { position: absolute; left: 0; right: 0; top: 0; height: var(--padt); display: flex; align-items: center; justify-content: center; gap: 2px;
-  font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; }
-.rp-cv .ic { width: 15px; height: 15px; }
-.is-done .rp-cv { color: var(--pos); }
+/* one label band above the plot: the number only (the unit is in .rp-ytitle), same baseline in every column */
+.rp-cv { position: absolute; left: 0; right: 0; top: 0; height: var(--padt); display: block; text-align: center; line-height: var(--padt);
+  font-size: 12.5px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.is-done .rp-cv { color: var(--pos); font-weight: 600; }
+.rp-bar .rp-ok { position: absolute; top: 4px; left: 50%; width: 14px; height: 14px; transform: translateX(-50%); color: #fff; }   /* met plan: tick inside the bar top */
 .is-na .rp-cv, .is-noplan .rp-cv { color: var(--ink-3); font-weight: 500; }
 .rp-cplot { position: absolute; left: 0; right: 0; top: var(--padt); height: var(--ph); }
 .rp-bar { position: absolute; left: 50%; width: min(56%, 40px); min-height: 2px; transform: translateX(-50%); border-radius: 4px 4px 0 0; background: var(--accent); }
@@ -247,7 +249,6 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-tbl tr.na td { text-align: left; color: var(--ink-3); font-style: italic; }
 
 /* ===== responsive ===== */
-@media (max-width: 1100px) { .rp-cv { flex-direction: column; gap: 0; line-height: 16px; } }   /* narrower columns: ✓ above the % */
 @media (max-height: 700px) and (min-width: 600px) { .rp-yc { --ph: 170px; } }
 @media (orientation: portrait) and (min-width: 600px) { .rp-yc { --ph: 300px; } }
 @media (max-width: 900px) {
@@ -255,7 +256,17 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   .rp-mcard .rp-pct { display: flex; align-items: baseline; gap: 10px; }
   .rp-lhead, .rp-row { column-gap: 20px; grid-template-columns: 76px minmax(0, 1fr) minmax(0, 1fr) 18px; }
   .rp-cell { grid-template-columns: 82px minmax(0, 1fr); }
-  .rp-cv { font-size: 13px; }
+}
+@media (max-width: 719px) { .rp-cards { grid-template-columns: minmax(0, 1fr); } }   /* narrow tablet portrait: one card per row, labels stay on one line */
+/* <768px: the year chart scrolls inside itself (axis stays), 52px per month; fades mark the hidden side */
+@media (max-width: 767px) {
+  .rp-yscroll { overflow-x: auto; overscroll-behavior-x: contain; }
+  .rp-yinner { width: 624px; }
+  .rp-yc::before, .rp-yc::after { content: ""; position: absolute; z-index: 3; top: 0; bottom: 20px; width: 32px; pointer-events: none; opacity: 0; }
+  .rp-yc::before { left: 44px; background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0)); }
+  .rp-yc::after { right: 0; background: linear-gradient(270deg, #fff, rgba(255, 255, 255, 0)); }
+  .rp-yc.fade-l::before, .rp-yc.fade-r::after { opacity: 1; }
+  .rp-hint-ph { display: inline; }
 }
 @media (max-width: 599px) {
   .rp { padding: 12px 16px 24px; }
@@ -274,16 +285,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   .rp-hctl .rp-seg { display: flex; flex: 1 1 100%; }
   .rp-hctl .rp-seg button { flex: 1; padding: 0 8px; }
   .rp-hctl .rp-ghost { margin-left: auto; padding: 0 8px; }
-  /* phone: the year chart scrolls inside itself (axis stays), ≥58px per month; fades mark the hidden side */
   .rp-yc { --ph: 170px; }
-  .rp-yscroll { overflow-x: auto; overscroll-behavior-x: contain; }
-  .rp-yinner { width: 696px; }
-  .rp-yc::before, .rp-yc::after { content: ""; position: absolute; z-index: 3; top: 0; bottom: 20px; width: 32px; pointer-events: none; opacity: 0; }
-  .rp-yc::before { left: 44px; background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0)); }
-  .rp-yc::after { right: 0; background: linear-gradient(270deg, #fff, rgba(255, 255, 255, 0)); }
-  .rp-yc.fade-l::before, .rp-yc.fade-r::after { opacity: 1; }
   .rp-hint { margin-left: 0; }
-  .rp-hint-ph { display: inline; }
   .rp-lhead { display: none; }
   .rp-row { grid-template-columns: minmax(0, 1fr) 18px; grid-template-areas: "m go" "a go" "p go"; column-gap: 8px; row-gap: 2px; padding: 8px 6px; }
   .rp-rm { grid-area: m; }

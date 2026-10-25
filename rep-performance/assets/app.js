@@ -173,19 +173,19 @@
     $('y-axis').innerHTML = ticks.filter(free).map(v => `<span style="bottom:${pos(v)}%">${neg(v)}${Math.abs(v)}%</span>`).join('')
       + `<span class="is-100" style="bottom:${pos(100)}%">100%</span>`;
     $('y-grid').innerHTML = ticks.map(v => `<i class="${v === 0 ? 'z' : ''}" style="bottom:${pos(v)}%"></i>`).join('') + `<i class="p100" style="bottom:${pos(100)}%"></i>`;
-    const check = '<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>';
+    const check = '<svg class="ic rp-ok" aria-hidden="true"><use href="#i-check"/></svg>';
     $('y-cols').setAttribute('aria-label', `12 сарын биелэлт · ${m.label}`);
     $('y-cols').innerHTML = full.map((mo, i) => {
       const a = mo.actual[m.key], p = mo.plan[m.key], r = ratioOf(mo, m), x = pctOf(a, p), done = r != null && a >= p;
       const st = a == null ? 'na' : r == null ? 'noplan' : done ? 'done' : 'under';
       const bar = r == null ? `<span class="rp-nobar"><span>${a == null ? 'Мэдээлэлгүй' : 'Төлөвлөгөөгүй'}</span></span>`
-        : r >= 0 ? `<span class="rp-bar" style="bottom:${z}%;height:${pos(r) - z}%"></span>`
+        : r >= 0 ? `<span class="rp-bar" style="bottom:${z}%;height:${pos(r) - z}%">${done ? check : ''}</span>`
           : `<span class="rp-bar neg" style="top:${100 - z}%;height:${z - pos(r)}%"></span>`;
       const aria = `${ymDot(mo.ym)} · ${m.label}: ${r == null ? '' : `${pctText(x)} биелэлт, `}${a == null ? '' : `гүйцэтгэл ${exact(a, m)}`}`
         + `${validPlan(p) ? `, төлөвлөгөө ${exact(p, m)}` : ''} · ${{ na: 'мэдээлэлгүй', noplan: 'төлөвлөгөөгүй', done: 'биелсэн', under: 'биелээгүй' }[st]}. Өдөр тутмын явцыг нээх`;
       const yrStart = i > 0 && mo.ym.slice(0, 4) !== full[i - 1].ym.slice(0, 4);
       return `<li${yrStart ? ' class="yr-start"' : ''}><button type="button" class="rp-col is-${st}${mo.ym === S.ym ? ' is-open' : ''}" data-ym="${mo.ym}" aria-label="${esc(aria)}"${mo.ym === S.ym ? ' aria-current="true"' : ''}>
-        <span class="rp-cv num">${r == null ? '—' : `${done ? check : ''}<span>${pctText(x)}</span>`}</span>
+        <span class="rp-cv num">${r == null ? '—' : `${neg(x)}${Math.abs(x).toFixed(1)}`}</span>
         <span class="rp-cplot">${bar}</span>
         <span class="rp-cm num">${mo.ym.slice(5)}</span></button></li>`;
     }).join('');

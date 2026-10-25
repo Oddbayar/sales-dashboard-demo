@@ -85,7 +85,10 @@
     $('rep-label').textContent = FX.rep.label;
     $('asof').textContent = dDot(FX.cutoff) + '-ны байдлаар';
     $('count-roster').textContent = FX.portfolio.n;
-    $('attn-n').textContent = FX.counts.attention;
+    // the customers' change column names its real windows (last 3 full months vs the 3 before), not a vague «previous 3 months»
+    var short = function (ms) { return ymDot(ms[0]) + '–' + ms[ms.length - 1].slice(5); };
+    $('cu-head-chg').textContent = short(W.recent) + ' / ' + short(W.base);
+    $('cu-head-chg').title = 'Сүүлийн 3 бүтэн сар (' + range(W.recent) + ') өмнөх 3 сартай (' + range(W.base) + ') харьцуулсан өөрчлөлт';
     // any date can be picked (unscheduled days show an empty state); previous/next jump between configured days
     var opts = function (vals, all) { return '<option value="">' + all + '</option>' + vals.map(function (v) { return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join(''); };
     var uniq = function (k) { return FX.customers.map(function (c) { return c[k]; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return a.localeCompare(b, 'mn'); }); };
@@ -131,13 +134,7 @@
     writeUrl();
   }
 
-  // ---------- route ----------
-  function reason(c) {   // one short attention reason per stop
-    if (has(c, 'lapsed')) return ['lapsed', 'Авалт тасарсан · ' + c.gap + ' хоног'];
-    if (has(c, 'declined')) return ['declined', 'Буурсан · ' + pctS(c.rate)];
-    if (has(c, 'never')) return ['never', 'Авч байгаагүй'];
-    return ['', '—'];
-  }
+  // ---------- route (a plain daily list: №, store, last demo visit, report; attention lives in «Харилцагчид») ----------
   var RCMP = {   // visit dates compared as dates (ISO strings); no record last in both directions; ties keep the schedule №
     visit_old: function (a, b) { return (a.lv === null) - (b.lv === null) || (a.lv < b.lv ? -1 : a.lv > b.lv ? 1 : 0) || a.no - b.no; },
     visit_new: function (a, b) { return (a.lv === null) - (b.lv === null) || (a.lv > b.lv ? -1 : a.lv < b.lv ? 1 : 0) || a.no - b.no; }
@@ -159,7 +156,7 @@
     $('rt-sort').value = state.rs; if ($('rt-q').value !== state.rq) $('rt-q').value = state.rq;
     $('route-note').innerHTML = routeNote(d);
     var none = !d;
-    ['route-tools', 'route-links'].forEach(function (cl) { document.querySelector('.' + cl).hidden = none; });
+    document.querySelector('.route-tools').hidden = none;
     document.querySelector('.rt-head').hidden = none;
     if (none) {
       $('route-list').innerHTML = '';
@@ -168,19 +165,20 @@
       writeUrl();
       return;
     }
-    var stops = routeStops(), att = d.stops.filter(function (c) { return attention(byCode[c]); }).length;
-    $('rt-attn-n').textContent = att; $('rt-all-n').textContent = d.stops.length;
-    $('route-count').textContent = state.rq ? stops.length + '/' + d.stops.length + ' дэлгүүр харуулж байна' : d.stops.length + ' дэлгүүр';
+    var stops = routeStops();
+    $('route-count').textContent = state.rq ? stops.length + '/' + d.stops.length + ' дэлгүүр' : d.stops.length + ' дэлгүүр';
+    $('route-count').setAttribute('aria-label', state.rq ? d.stops.length + ' дэлгүүрээс ' + stops.length + ' нь харагдаж байна' : d.stops.length + ' дэлгүүр');
     $('rt-clear').hidden = !state.rq;
     $('route-empty').hidden = stops.length > 0;
     $('route-empty').textContent = '«' + state.rq + '» гэсэн дэлгүүр энэ маршрутад алга.';
+    // one line name, one line code · type (aimag stays in the drawer); last visit = short date + days, or «Бүртгэлгүй»
     $('route-list').innerHTML = stops.map(function (s) {
-      var c = byCode[s.code], why = reason(c), gap = s.lv ? daysBetween(s.lv, state.day) : null;
-      return '<li class="rt-item"><button type="button" class="rt-row" data-code="' + esc(c.code) + '" aria-haspopup="dialog">' +
+      var c = byCode[s.code], gap = s.lv ? daysBetween(s.lv, state.day) : null;
+      return '<li class="rt-item"><button type="button" class="rt-row" data-code="' + esc(c.code) + '" aria-haspopup="dialog" aria-label="' +
+        esc('№' + s.no + ', ' + c.name + ', ' + c.code + ', ' + c.type + '. Сүүлд очсон: ' + (s.lv ? dDot(s.lv) + ', ' + gap + ' хоног' : 'бүртгэлгүй')) + '">' +
         '<span class="rt-no num" title="Хуваарьт дараалал">' + s.no + '</span>' +
-        '<span class="rt-main"><b>' + esc(c.name) + '</b><span>' + esc(c.code + ' · ' + c.aimag + ' · ' + c.type) + '</span></span>' +
-        '<span class="rt-why' + (why[0] ? ' why-' + why[0] : '') + '">' + esc(why[1]) + '</span>' +
-        '<span class="rt-visit num">' + (s.lv ? '<b>' + shortDate(s.lv) + '</b><span>' + gap + ' хоног</span>' : '<span class="muted-s">Очсон бүртгэлгүй</span>') + '</span>' +
+        '<span class="rt-main"><b>' + esc(c.name) + '</b><span>' + esc(c.code + ' · ' + c.type) + '</span></span>' +
+        '<span class="rt-visit num">' + (s.lv ? '<b>' + shortDate(s.lv) + '</b><span>' + gap + ' хоног</span>' : '<span class="muted-s">Бүртгэлгүй</span>') + '</span>' +
         '<svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>' +
         (hasReport(c.code) ? '<a class="icon-btn rt-win" href="' + esc(reportUrl(c.code)) + '" data-report="' + esc(c.code) + '" aria-label="' + esc(c.name) + ': дэлгүүрийн цонх нээх" title="Дэлгүүрийн цонх">' +
           '<svg class="ic" aria-hidden="true"><use href="#i-store"/></svg></a>' : '<span class="rt-win-none" aria-hidden="true"></span>') + '</li>';
@@ -281,31 +279,28 @@
 
   // ---------- detail drawer (every customer) ----------
   var drawer = { opener: null, y: 0, code: null, k: 11 };
+  // the drawer's 12 full months on one money scale (zero line shared by +/− bars), one calm colour (the inspected month stands out),
+  // and the monthly average = Σ of exactly these 12 months ÷ 12 drawn at its true height on the same scale
+  function sayMillion(v) { return (v < 0 ? MINUS : '') + (Math.abs(v) / 1e6).toFixed(2) + ' сая ₮'; }
   function chart(c) {
     var vals = c.m, maxP = Math.max.apply(null, vals.concat([0])), maxN = Math.max.apply(null, vals.map(function (v) { return -v; }).concat([0]));
     var span = maxP + maxN || 1, zero = maxN / span * 100;   // % from the bottom
+    var avg = c.t12 / 12, avgAt = zero + avg / span * 100;    // the average's position on the same scale (% from the bottom)
     return '<section class="pd-sec rr-chart"><h3>12 сарын татан авалт <span>' + range(W.months) + '</span></h3>' +
-      '<div class="rc-bars" role="group" aria-label="12 сарын татан авалт" style="--zero:' + zero.toFixed(2) + '%">' + vals.map(function (v, k) {
+      '<p class="rc-legend"><i class="lg-avg" aria-hidden="true"></i>Дундаж · <b class="num">' + sayMillion(avg) + '</b></p>' +
+      '<div class="rc-bars" role="group" aria-label="12 сарын татан авалт, сарын дундаж ' + esc(money(avg)) + '" style="--zero:' + zero.toFixed(2) + '%">' +
+      '<span class="rc-avg" aria-hidden="true"><i style="bottom:' + avgAt.toFixed(3) + '%"></i></span>' + vals.map(function (v, k) {
         var ym = W.months[k], mm = ym.slice(5), yr = k === 0 || mm === '01' ? ym.slice(0, 4) : '';
-        var h = Math.abs(v) / span * 100, cls = k >= vals.length - W.recent.length ? ' r' : k >= vals.length - W.recent.length - W.base.length ? ' b' : '';
-        return '<button type="button" class="rc' + cls + (yr && k ? ' yr-start' : '') + '" data-k="' + k + '" aria-label="' + esc(ymDot(ym) + ': ' + money(v)) + '">' +
-          '<span class="rc-plot"><span class="rc-bar' + (v < 0 ? ' neg' : '') + '" style="height:' + h.toFixed(2) + '%"></span></span>' +
+        return '<button type="button" class="rc' + (yr && k ? ' yr-start' : '') + '" data-k="' + k + '" aria-label="' + esc(ymDot(ym) + ': ' + money(v)) + '">' +
+          '<span class="rc-plot"><span class="rc-bar' + (v < 0 ? ' neg' : '') + '" style="height:' + (Math.abs(v) / span * 100).toFixed(3) + '%"></span></span>' +
           '<span class="rc-m num">' + mm + '</span><span class="rc-y num">' + yr + '</span></button>';
       }).join('') + '</div>' +
       '<div class="mini-nav"><button type="button" class="icon-btn step" data-step="-1" aria-label="Өмнөх сар"><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg></button>' +
       '<p class="mini-read num" aria-live="polite" id="rc-read"></p>' +
       '<button type="button" class="icon-btn step" data-step="1" aria-label="Дараагийн сар"><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button></div>' +
-      '<p class="rc-legend"><i class="lg-b"></i>Өмнөх 3 сар <i class="lg-r"></i>Сүүлийн 3 сар</p>' +
       '<details class="rc-list"><summary>Сар бүрийн дүн</summary><ul>' + vals.map(function (v, k) {
         return '<li><span class="num">' + ymDot(W.months[k]) + '</span><span class="num">' + money(v) + '</span></li>';
       }).join('') + '</ul></details></section>';
-  }
-  function headline(c) {   // the 1–2 lines that say why this customer matters, with the key number
-    var out = [];
-    if (has(c, 'lapsed')) out.push(['lapsed', c.gap + ' хоног авалтгүй · сүүлд ' + dDot(c.last)]);
-    if (has(c, 'declined')) out.push(['declined', pctS(c.rate) + ' · ' + signed(c.r - c.b) + ' (сүүлийн 3 сар)']);
-    if (has(c, 'never')) out.push(['never', dDot(FX.coverage.from) + '-аас хойш авалт бүртгэгдээгүй']);
-    return out;
   }
   function pickBar(k) {
     var bars = Array.prototype.slice.call($('dr-body').querySelectorAll('.rc')), c = byCode[drawer.code];
@@ -317,27 +312,24 @@
     drawer.k = k;
   }
   function openDetail(code, opener) {
-    var c = byCode[code], ready = hasReport(code), d = routeDay(state.day), no = d ? d.stops.indexOf(code) + 1 : 0, lv = lastVisit(code, state.day);
+    var c = byCode[code], ready = hasReport(code), lv = lastVisit(code, state.day), CUR = FX.current;
     drawer.code = code; drawer.opener = opener || document.activeElement; drawer.y = window.scrollY;
     $('dr-kind').innerHTML = '<span>Харилцагч</span>';
     $('dr-title').textContent = c.name;
     $('dr-sub').textContent = [c.code, c.aimag, c.type, c.record === 'old' ? 'Хуучин бүртгэл' : 'Одоогийн бүртгэл'].join(' · ');
-    var fact = function (l, v, s) { return '<div><dt>' + l + '</dt><dd class="num">' + v + (s ? '<span>' + s + '</span>' : '') + '</dd></div>'; };
-    var hl = headline(c);
+    // exactly four cards (2×2): 12 months, monthly average, this month to the fixed report cutoff, last demo visit as of the route day
+    var card = function (k, l, v, s) { return '<div class="rr-kpi" data-k="' + k + '"><dt>' + l + '</dt><dd class="num">' + v + '</dd>' + (s ? '<p>' + s + '</p>' : '') + '</div>'; };
+    var curRange = CUR ? dDot(CUR.from) + '–' + CUR.to.slice(8) : '';
     $('dr-body').innerHTML =
       (ready ? '<a class="btn rr-cta" id="dr-report" href="' + esc(reportUrl(code)) + '"><svg class="ic" aria-hidden="true"><use href="#i-store"/></svg>Дэлгүүрийн цонх нээх</a>'
         : '<p class="rr-nocta">Бүрэн дэлгүүрийн тайлан энэ демод бэлэн биш.</p>') +
-      (hl.length ? '<section class="pd-sec rr-why">' + hl.map(function (w) { return '<p><span class="flag fl-' + w[0] + '">' + FLAG[w[0]] + '</span><b class="num">' + esc(w[1]) + '</b></p>'; }).join('') + '</section>' : '') +
-      '<section class="pd-sec"><dl class="rr-facts">' +
-        fact('12 сарын дүн', money(c.t12), range(W.months)) + fact('Сарын дундаж', money(c.t12 / 12)) +
-        fact('Сүүлийн 3 сар', money(c.r), range(W.recent)) + fact('Өмнөх 3 сар', money(c.b), c.b > 0 ? range(W.base) : 'харьцуулах суурьгүй') +
-        fact('Сүүлийн авалт', c.last ? dDot(c.last) : 'Авч байгаагүй', c.last ? c.gap + ' хоног · ' + c.days12 + ' өдөр авсан (12 сар)' : '') +
-        fact('Сүүлд очсон', lv ? dDot(lv) : 'Очсон бүртгэлгүй', lv ? daysBetween(lv, state.day) + ' хоног (' + dDot(state.day) + '-ны байдлаар)' : '') + '</dl>' +
-        (no ? '<p class="rr-route-info num">Маршрут ' + dDot(state.day) + ' · №' + no + '</p>' : '') + '</section>' +
-      chart(c) +
-      '<details class="rr-rules dr-calc"><summary>Тооцоолол</summary><p>12 сар ' + range(W.months) + '; сүүлийн 3 сар ' + range(W.recent) + ', өмнөх 3 сар ' + range(W.base) +
-        '. Буурсан: ' + R.declined.min_drop_pct + '%+ бууралт; авалт тасарсан: 12 сард ' + R.lapsed.min_purchase_days + '+ өдөр авсан, ' + R.lapsed.min_gap_days + '+ хоног авалтгүй. ' +
-        'Сүүлийн авалт нь ' + dDot(FX.cutoff) + ' хүртэлх борлуулалтаас; «Сүүлд очсон» нь жишиг очилтын бүртгэл (сонгосон өдрөөс хойших бүртгэлийг тооцохгүй).</p></details>';
+      '<section class="pd-sec"><dl class="rr-kpis">' +
+        card('t12', '12 сарын дүн', money(c.t12), range(W.months)) +
+        card('avg', 'Сарын дундаж', money(c.t12 / 12), 'Өмнөх 12 бүтэн сар') +
+        card('cur', 'Энэ сарын гүйцэтгэл', typeof c.cur === 'number' ? money(c.cur) : '—', curRange) +
+        card('visit', 'Сүүлд очсон', lv ? dDot(lv) : 'Очсон бүртгэлгүй', lv ? daysBetween(lv, state.day) + ' хоног · ' + shortDate(state.day) + '-ны байдлаар' : 'Жишиг очилтын бүртгэл') +
+      '</dl></section>' +
+      chart(c);
     var dlg = $('dr');
     if (!dlg.open) { document.documentElement.classList.add('modal-open'); dlg.showModal(); }
     $('dr-body').scrollTop = 0;
@@ -369,10 +361,6 @@
 
   // ---------- events ----------
   function keepCaret(inp, fn) { var s = inp.selectionStart, e = inp.selectionEnd, y = window.scrollY; fn(); if (document.activeElement !== inp) inp.focus(); try { inp.setSelectionRange(s, e); } catch (x) { /* type=search */ } window.scrollTo(0, y); }
-  function toCustomers(f, scope) {   // shortcuts: a fresh, clearly scoped list
-    state.f = f; state.scope = scope; state.rec = 'all'; state.aimag = ''; state.type = ''; state.q = ''; state.sort = '';
-    scrollY.customers = 0; renderCustomers(); selectTab('customers'); window.scrollTo(0, 0); $('tab-customers').focus({ preventScroll: true });
-  }
   function bind() {
     TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { selectTab(t); }); });
     $('tabs').addEventListener('keydown', function (e) {
@@ -380,9 +368,6 @@
       if (n === undefined) return;
       e.preventDefault(); selectTab(TABS[(n + TABS.length) % TABS.length], true);
     });
-    $('attn-link').addEventListener('click', function () { toCustomers('attention', ''); });
-    $('rt-attn').addEventListener('click', function () { toCustomers('attention', 'route'); });
-    $('rt-all').addEventListener('click', function () { toCustomers('all', 'route'); });
     // date: the visible value is 2026.10.22; a transparent native date input covers it (keyboard segments, screen readers, mobile pickers)
     ['change', 'input'].forEach(function (ev) { $('day').addEventListener(ev, function () { if (/^\d{4}-\d{2}-\d{2}$/.test(this.value) && this.value !== state.day) setDay(this.value); }); });
     $('day').addEventListener('click', function () { try { this.showPicker(); } catch (e) { /* the browser's own picker behaviour */ } });
