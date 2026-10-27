@@ -1,0 +1,101 @@
+/* «Багийн хяналт» — the store window's supervisor additions (ui/store-report with ?sv=). Loaded only there, after
+   the report's own styles.css and the shared tasks.css. Scoped to sv- classes; the report's look is unchanged. */
+html.sv-mode { --pos-soft: #ECFDF3; --warn-soft: #FFFAEB; --err: #B42318; --err-soft: #FEF3F2; }   /* the team page's extra tokens */
+
+/* header: the list's three values (read from this report) + the reviewed assignment */
+.sv-ctx { display: grid; gap: 8px; margin-top: 2px; }
+.sv-kpi { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 14px; color: var(--ink-3); }
+.sv-kpi b { color: var(--ink); font-weight: 600; }
+.sv-kpi small { font-size: 12.5px; color: var(--ink-4); }
+.sv-warn { padding: 8px 12px; border-radius: 8px; background: var(--err-soft); color: var(--err); font-size: 14px; font-weight: 500; }
+.sv-fbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 6px 6px 14px; border: 1px solid #FEDF89; border-radius: 10px; background: #FFFCF5; font-size: 14.5px; }
+.sv-fbar > b { min-width: 0; font-weight: 600; }
+.sv-fk { font-size: 12.5px; font-weight: 600; color: var(--warn); }
+.sv-fgo { margin-left: auto; }
+.sv-go .badge { background: var(--warn-soft); color: var(--warn); }
+/* the sticky bar gains «Даалгавар»; below 1100px the name keeps its room (the code is in the header, the card keeps its badge) */
+@media (max-width: 1100px) {
+  html.sv-mode .bar-store span, html.sv-mode .bar-as .l { display: none; }
+  html.sv-mode .bar-store strong { white-space: normal; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }   /* team names are longer than «Дэлгүүр 13204» */
+}
+@media (max-width: 900px) { #sv-go2 { display: none; } }   /* portrait: the header «Даалгавар» stays; the sticky bar keeps the name */
+
+/* the section under the report */
+.sv { margin-top: 16px; padding: 18px 20px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh-1); outline: none; scroll-margin-top: calc(var(--bar-h) + 12px); }
+.sv-h { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 6px 20px; }
+.sv-h h2 { font-size: 19px; line-height: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.sv-sub { font-size: 14px; color: var(--ink-3); }
+.sv-rep { font-size: 13.5px; color: var(--ink-3); padding-top: 4px; }
+.sv-rep b { color: var(--ink); font-weight: 600; }
+.sv-dates { margin: 10px 0 12px; padding: 10px 14px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--rule); font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.sv-note { margin-bottom: 12px; font-size: 14px; color: var(--warn); }
+.sv-gh { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 6px; font-size: 15px; font-weight: 600; }
+.sv-gh span { font-size: 13.5px; color: var(--ink-3); font-weight: 500; }
+.sv-none { padding: 4px 0 6px; font-size: 14.5px; color: var(--ink-3); }
+
+/* one row per assignment: Өгсөн | Даалгавар | Хугацаа | Төлөв | Хариу; opens in place to the shared detail */
+.sv-ahead, .sv-arow { display: grid; grid-template-columns: 52px minmax(0, 1fr) 64px 136px 132px 18px; column-gap: 12px; align-items: center; }
+.sv-ahead { padding: 4px 14px 6px; font-size: 12.5px; font-weight: 600; color: var(--ink-3); border-bottom: 1px solid var(--rule); }
+.sv-list { margin: 0; padding: 0; list-style: none; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.sv-a + .sv-a { border-top: 1px solid var(--rule); }
+.sv-a { scroll-margin-top: calc(var(--bar-h) + 12px); }   /* a task opened from a link lands below the sticky bar */
+.sv-arow { width: 100%; min-height: 56px; padding: 8px 14px; border: 0; background: var(--surface); color: var(--ink); text-align: left; font: 14.5px/1.4 var(--font); cursor: pointer; }
+.sv-arow:hover { background: var(--surface-2); }
+.sv-a.s-review > .sv-arow { background: #FFFCF5; box-shadow: inset 3px 0 #F79009; }
+.sv-a.fresh > .sv-arow { box-shadow: inset 3px 0 var(--accent); }
+.sv-arow[aria-expanded="true"] { background: var(--surface-2); }
+.sv-arow[aria-expanded="true"] > .tc-chev { transform: rotate(180deg); }
+.sv-arow > .tc-chev { width: 18px; height: 18px; }
+.sv-a.is-focus { box-shadow: inset 0 0 0 2px #F79009; border-radius: 10px; }
+.sv-flag { padding: 6px 14px 0; background: #FFFCF5; font-size: 12.5px; font-weight: 600; color: var(--warn); }
+.sv-l { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sv-a-g, .sv-a-d { color: var(--ink-2); }
+.sv-a-t { min-width: 0; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sv-det { padding: 14px 14px 16px; background: var(--surface-2); border-top: 1px solid var(--rule); }
+.sv .tc-flash { margin: 0 0 8px; }
+
+/* the small one-customer form */
+.sv-form { display: grid; gap: 12px; margin-top: 18px; padding: 14px 16px 16px; border: 1px solid var(--accent-line); border-radius: 10px; background: var(--accent-soft); }
+.sv-form h3 { font-size: 15px; font-weight: 600; }
+.sv-to { margin-top: -6px; font-size: 14px; color: var(--ink-2); }
+.sv-form .tc-field { max-width: 640px; }
+.sv-form .tc-field textarea { min-height: 64px; }
+.sv-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 16px; }
+.sv-row .tc-field { flex: 0 1 240px; }
+.sv-row .tc-btn { margin-top: 26px; }
+.sv-foot { margin-top: 14px; }
+.sv-foot .back-btn { margin: 0 0 0 -6px; text-decoration: none; }
+
+@media (max-width: 900px) {
+  .sv { padding: 16px; }
+  .sv-ahead { display: none; }
+  .sv-arow { grid-template-columns: auto auto minmax(0, 1fr) auto 18px; grid-template-areas: "t t t s ch" "g d . r ch"; row-gap: 4px; column-gap: 14px; padding: 10px 14px; }
+  .sv-a-t { grid-area: t; } .sv-a-s { grid-area: s; } .sv-a-g { grid-area: g; } .sv-a-d { grid-area: d; } .sv-a-r { grid-area: r; justify-self: end; }
+  .sv-arow > .tc-chev { grid-area: ch; }
+  .sv-a-g, .sv-a-d { font-size: 13.5px; }
+  .sv-l { position: static; width: auto; height: auto; overflow: visible; clip: auto; color: var(--ink-3); }
+  .sv .tc-adet-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .sv .tc-hist li { grid-template-columns: 1fr; gap: 0; padding-bottom: 4px; }
+  .sv .tc-kv { grid-template-columns: 1fr; }
+  .sv-fgo { margin-left: 0; }
+}
+
+/* the rep view (Claude 31, html.rep-mode on ?rep=&cust=): work to reply to is marked, a waiting review is quiet */
+html.rep-mode .sv-a.s-review > .sv-arow { background: var(--surface); box-shadow: none; }
+html.rep-mode .sv-a.need > .sv-arow { box-shadow: inset 3px 0 var(--accent); }
+html.rep-mode .sv-a.is-focus { box-shadow: inset 0 0 0 2px var(--accent); }
+html.rep-mode .sv-flag { background: var(--accent-soft); color: var(--accent-strong); }
+html.rep-mode .sv-fbar { border-color: var(--accent-line); background: var(--accent-soft); }
+html.rep-mode .sv-fk { color: var(--accent-strong); }
+html.rep-mode .sv-go .badge { background: var(--accent); color: #fff; }
+
+/* the rep's row (Claude 32): the title once (wraps, never cut), then one small line «Хугацаа · status · reply» */
+html.rep-mode .sv-rrow { grid-template-columns: minmax(0, 1fr) 18px; grid-template-areas: "t ch" "r2 ch"; row-gap: 4px; min-height: 60px; padding: 8px 14px; }
+html.rep-mode .sv-rrow .sv-a-t { grid-area: t; display: block; overflow: visible; font-size: 15.5px; }
+html.rep-mode .sv-rrow .sv-r2 { grid-area: r2; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13.5px; color: var(--ink-2); }
+html.rep-mode .sv-rrow > .tc-chev { grid-area: ch; }
+html.rep-mode .sv-h { margin-bottom: 2px; }
+html.rep-mode #sv-rep { margin-top: 14px; }
+html.rep-mode .sv-dates { margin: 6px 0 0; font-size: 13px; }

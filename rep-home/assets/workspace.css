@@ -19,6 +19,7 @@
 .ws-t { display: grid; min-width: 0; }
 .ws-t b { font-size: 15px; line-height: 20px; font-weight: 600; }
 .ws-t small { font-size: 12px; line-height: 16px; color: #1D4ED8; font-weight: 500; }
+.ws-t small.ws-sub { color: #5F6B7D; font-weight: 400; }
 .ws-item.is-active { background: #EEF3FE; box-shadow: inset 3px 0 0 #2563EB; }
 .ws-item.is-active .ws-ic { color: #1D4ED8; }
 @media (prefers-reduced-motion: reduce) { .ws-pop { transition: none; } }

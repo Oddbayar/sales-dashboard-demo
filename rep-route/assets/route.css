@@ -157,3 +157,100 @@
   .rr-kpi { padding: 8px 10px; }
   .rr-kpi dd { font-size: 16px; }
 }
+
+/* ===== team demo (Claude 31, html.team-demo; ?demo=team&rep=SR-D0x on 8791): task marks, filters, drawer list. SR-073 is unaffected. ===== */
+html.team-demo { --pos-soft: #ECFDF3; --warn-soft: #FFFAEB; --err: #B42318; --err-soft: #FEF3F2; }   /* the task styles' extra tokens (tasks.css) */
+.rr-rep { flex: none; }
+.rr-rep-l { position: absolute; left: 12px; top: -8px; padding: 0 4px; background: var(--surface); font-size: 11.5px; line-height: 14px; color: var(--ink-3); pointer-events: none; }
+.rr-rep select { min-width: 168px; }
+.rr-tabrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; margin: 0 0 12px; border-bottom: 1px solid var(--border); }
+.rr-tabrow .rr-tabs { margin: 0; border-bottom: 0; }
+.rr-tkgo { margin: 0 0 4px; font-weight: 600; }
+.rr-tkgo b { font-weight: 700; }
+.rr-tkgo .ic { width: 18px; height: 18px; }
+/* route: [row] [task mark, fixed column] [store window]; a row without work keeps an empty cell (no 0, no dash) */
+.team-demo .rt-item { grid-template-columns: minmax(0, 1fr) 132px 44px; }
+.team-demo .rt-head { grid-template-columns: 28px minmax(0, 1fr) 132px 16px 132px 44px; }
+.rt-task { display: grid; align-content: center; min-height: 44px; padding: 3px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  color: var(--ink-2); text-decoration: none; line-height: 18px; white-space: nowrap; overflow: hidden; }
+.rt-task:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+.rt-task b { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.rt-task span { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; }
+.rt-task .ic { width: 14px; height: 14px; flex: none; }
+.rt-task.tk-need { border-color: var(--accent); background: var(--accent-soft); }
+.rt-task.tk-need span { color: var(--accent-strong); font-weight: 600; }
+.rt-task.tk-back { border-color: #FEC84B; background: var(--warn-soft); }
+.rt-task.tk-back span { color: var(--warn); font-weight: 600; }
+.rt-task.tk-rev span { color: var(--ink-3); }
+/* status tags (customer rows, drawer): icon + word, never colour alone */
+.tk { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 999px; border: 1px solid transparent; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.tk .ic { width: 14px; height: 14px; }
+.tk-need { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent-strong); }
+.tk-back { background: var(--warn-soft); border-color: #FEDF89; color: var(--warn); }
+.tk-rev { background: var(--surface); border-color: var(--border); color: var(--ink-2); }
+.tk-done { background: var(--pos-soft); color: var(--pos); }
+.tk-failed { background: var(--err-soft); color: var(--err); }
+/* customers: the task filter (customer counts) under the analytic chips; the result line names it */
+.cu-tchips { margin: -2px 0 8px; align-items: center; }
+.cu-tl { font-size: 13px; font-weight: 600; color: var(--ink-3); margin-right: 2px; }
+.cu-tchips .seg-btn { padding: 0 12px; }
+.cu-tnow { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); font-size: 12.5px; font-weight: 600; }
+/* drawer: active work in short, each a link to the common store window on that assignment */
+.rr-tasks h3 span { font-weight: 500; }
+.rr-tk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rr-tk { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 16px; align-items: center; gap: 4px 10px; min-height: 48px; padding: 6px 10px;
+  border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--ink); text-decoration: none; }
+.rr-tk:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+.rr-tk-t { min-width: 0; font-size: 14.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rr-tk-d { font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+.rr-tk > .ic { color: var(--ink-3); }
+.rr-tk-none, .rr-tk-past { font-size: 14px; color: var(--ink-3); }
+.rr-tk-past { margin-top: 8px; }
+.rr-tk-past b { color: var(--ink); font-weight: 600; }
+.rr-tk-all { margin-top: 10px; width: 100%; text-decoration: none; }
+.rr-reps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.rr-reps .btn-sec { width: 100%; }
+@media (max-width: 860px) {
+  .team-demo .rt-item { grid-template-columns: minmax(0, 1fr) 124px 44px; }
+  .team-demo .rt-head { grid-template-columns: 28px minmax(0, 1fr) 112px 16px 124px 44px; }
+}
+@media (max-width: 640px) {
+  .team-demo .rt-item { grid-template-columns: minmax(0, 1fr) 120px 44px; gap: 4px; }
+  .rt-task { padding: 3px 7px; }
+  .rr-rep select { min-width: 0; }
+  .rr-tk { grid-template-columns: auto minmax(0, 1fr) 16px; }
+  .rr-tk-d { grid-column: 2; }
+  .rr-tk > .ic { grid-row: 1 / span 2; grid-column: 3; }
+}
+
+/* ===== Claude 32 (team demo): compact header, the customer list as the main content ===== */
+.team-demo .rr-head { flex-wrap: nowrap; align-items: center; margin-bottom: 4px; }
+.team-demo .rr-head h1 { font-size: 22px; line-height: 28px; }
+.team-demo .rr-side .asof { display: none; }   /* the sales cutoff is in the line under the title */
+.team-demo .rr-tabrow { margin-bottom: 8px; }
+/* row 1: search · «Шүүлт» · sort; row 2: Бүгд | Даалгавартай | Хариу өгөх + the shown count; extras fold into the panel */
+.team-demo .cu-tools { flex-wrap: nowrap; }
+.team-demo .cu-tools .search { flex: 1 1 200px; min-width: 0; }
+.team-demo .cu-more { display: inline-flex; flex: none; }
+.team-demo .cu-tools .sort { flex: 0 1 auto; min-width: 0; }
+.team-demo .cu-tools .sort select { max-width: 190px; }
+.cu-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--surface-2); }
+.cu-panel .cu-sum, .cu-panel .cu-chips { flex: 1 1 100%; margin: 0; }
+.cu-panel .cu-sec { display: flex; }
+.cu-tbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 8px 0 4px; }
+.cu-tbar .cu-tchips { margin: 0; flex-wrap: nowrap; }
+.cu-tbar .cu-count { margin: 0; }
+.cu-hid { color: var(--warn); font-weight: 500; }
+.team-demo .cu-n2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) {
+  .team-demo .rr-side { width: auto; }
+  .team-demo .rr-head h1 { font-size: 20px; line-height: 26px; }
+  .team-demo .cu-tools .search { flex-basis: 160px; }
+  .team-demo .cu-tools .sort { flex: 0 1 150px; }
+  .team-demo .cu-tools .sort select { width: 100%; }
+  .cu-tbar .cu-tchips .seg-btn { padding: 0 10px; }
+}
+@media (min-width: 641px) and (max-width: 860px) {   /* team demo: narrower number columns so a name + its task tags stay on one line */
+  .team-demo .cu-head, .team-demo .cu-row { grid-template-columns: minmax(0, 1fr) 104px 112px 90px; column-gap: 12px; }
+  .team-demo .cu-head .yr { display: none; }   /* «07–09 / 04–06»: both periods are in one year; the full range is in the title */
+}

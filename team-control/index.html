@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="mn" data-ws-module="team">
+<head>
+  <meta charset="utf-8">
+  <meta name="build" content="c5869025e5a7">
+  <meta name="release" content="d13f86e5b0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Багийн хяналт · Демо</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232563EB%27/%3E%3Cpath d=%27M9 23v-5M16 23V9M23 23v-9%27 stroke=%27white%27 stroke-width=%273%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/Inter-SemiBold.woff2?v=5cb7103e4e" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/tasks.css?v=87066185a0">
+  <link rel="stylesheet" href="assets/app.css?v=c60a85dbd3">
+  <link rel="stylesheet" href="../rep-home/assets/workspace.css?v=8add8fdd9a">
+  <!-- Optional: official Telegram Mini App SDK. Async, so the page works without it (plain browser, offline, blocked). -->
+  <script async src="https://telegram.org/js/telegram-web-app.js" onload="window.WS && window.WS.tgInit()"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5M15.5 5.3a3.5 3.5 0 010 6.4M18 14.4c1.6.8 2.7 2.4 3 4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- the task icons (status, reply, undo, down, store) come from assets/core.js, shared with the store window -->
+    <symbol id="i-updown" viewBox="0 0 24 24"><path d="M8 10l4-4 4 4M8 14l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <main class="tc" id="app">
+    <header class="tc-head">
+      <div>
+        <h1>Багийн хяналт</h1>
+        <p class="tc-sub" id="who"></p>
+      </div>
+      <div class="tc-meta">
+        <p class="tc-asof"><span class="tc-pill"><span class="dot" aria-hidden="true"></span>Демо</span><span id="asof"></span></p>
+        <button type="button" class="tc-btn tc-primary" id="open-all"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Харилцагч сонгох</button>
+        <div data-ws-menu></div>
+      </div>
+    </header>
+
+    <div class="tc-tabs" role="tablist" aria-label="Хэсэг">
+      <button type="button" role="tab" id="tab-perf" aria-controls="p-perf" data-tab="perf">Гүйцэтгэл</button>
+      <button type="button" role="tab" id="tab-tasks" aria-controls="p-tasks" data-tab="tasks">Даалгавар <span class="tc-count num" id="tab-review"></span></button>
+    </div>
+
+    <section id="p-perf" role="tabpanel" aria-labelledby="tab-perf">
+      <dl class="tc-sum" id="sum"></dl>
+      <div class="tc-tablewrap">
+        <table class="tc-reps">
+          <caption class="sr-only">Таван худалдааны төлөөлөгчийн гүйцэтгэл ба даалгавар. Мөр дээр дарж харилцагчдыг, даалгаврын тоон дээр дарж тэр ажлуудыг нээнэ.</caption>
+          <colgroup><col class="c-rep"><col class="c-met"><col class="c-met"><col class="c-todo"><col class="c-review"><col class="c-done"><col class="c-failed"></colgroup>
+          <thead>
+            <tr><th scope="col" rowspan="2">ХТ</th><th scope="col" rowspan="2">Мөнгөн биелэлт</th><th scope="col" rowspan="2">Биет хэмжээний биелэлт<span class="tc-th2">Савлагаа (ш)</span></th><th scope="colgroup" colspan="4" class="tc-thg">Даалгавар · харилцагчаар</th></tr>
+            <tr><th scope="col" class="tc-n">Хийх</th><th scope="col" class="tc-n">Хянуулах</th><th scope="col" class="tc-n">Баталгаажсан</th><th scope="col" class="tc-n">Биелээгүй</th></tr>
+          </thead>
+          <tbody id="reps"></tbody>
+        </table>
+      </div>
+      <p class="tc-foot" id="perf-note"></p>
+    </section>
+
+    <!-- tasks: one section per rep, one row per customer task; a row expands in place to the task, the reply and the review -->
+    <section id="p-tasks" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+      <div class="tc-tbar">
+        <label class="tc-sel"><span class="tc-lbl">ХТ</span><select id="t-rep"></select></label>
+        <div class="tc-fgroup"><span class="tc-lbl" id="t-st-l">Төлөв</span><div class="tc-seg" id="t-status" role="group" aria-labelledby="t-st-l"></div></div>
+        <label class="tc-search tc-t-search"><span class="tc-lbl">Хайлт</span><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+          <input type="search" id="t-q" placeholder="Нэр эсвэл код" aria-label="Даалгаврын нэр, харилцагчийн нэр эсвэл кодоор хайх" autocomplete="off" spellcheck="false" maxlength="40"></label>
+      </div>
+      <div class="tc-tres">
+        <p id="t-res" tabindex="-1"></p>
+        <div class="tc-tres-r">
+          <button type="button" class="tc-btn tc-ghost" id="t-clear" hidden>Бүгдийг харах</button>
+          <button type="button" class="tc-btn tc-dir" id="t-dir"></button>
+        </div>
+      </div>
+      <p class="tc-flash" id="t-flash" role="status" tabindex="-1"></p>
+      <div id="t-sections"></div>
+      <div class="tc-empty tc-t-empty" id="t-empty" hidden><p>Шүүлтэд тохирох ажил алга.</p><button type="button" class="tc-btn" id="t-empty-clear">Бүгдийг харах</button></div>
+      <p class="tc-foot" id="tasks-note"></p>
+    </section>
+  </main>
+
+  <!-- one drawer, three views: pick (customers) → form → done -->
+  <dialog class="tc-sheet" id="dr" aria-labelledby="dr-title">
+    <div class="tc-view" id="v-pick">
+      <div class="tc-sheet-h">
+        <div class="tc-sheet-top">
+          <div class="tc-sheet-ttl"><h2 id="dr-title" tabindex="-1"></h2><p id="pick-sub"></p></div>
+          <label class="tc-sel tc-sel-rep"><span class="sr-only">ХТ</span><select id="f-rep"></select></label>
+          <button type="button" class="tc-icon" data-close aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="tc-filters">
+          <label class="tc-search"><span class="tc-lbl">Хайлт</span><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+            <input type="search" id="f-q" placeholder="Нэр эсвэл код" autocomplete="off" spellcheck="false" maxlength="40"></label>
+          <label class="tc-sel"><span class="tc-lbl">Энэ сарын дүн</span><select id="f-band">
+            <option value="">Бүгд</option><option value="lt1">1 саяас бага</option><option value="1to3">1–3 сая</option><option value="3to5">3–5 сая</option><option value="ge5">5 сая ба түүнээс их</option>
+          </select></label>
+        </div>
+        <div class="tc-chips">
+          <button type="button" class="tc-chip" id="f-nobuy" aria-pressed="false"><span class="tc-cb" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span>Энэ сард татан авалтгүй</button>
+          <button type="button" class="tc-chip" id="f-notask" aria-pressed="false"><span class="tc-cb" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span>Идэвхтэй даалгаваргүй</button>
+        </div>
+        <div class="tc-result">
+          <p><b class="num" id="res-n"></b><button type="button" class="tc-link" id="f-clear" hidden>Шүүлт цэвэрлэх</button><span class="sr-only" id="sort-say" aria-live="polite"></span></p>
+          <button type="button" class="tc-btn" id="sel-visible"></button>
+        </div>
+        <!-- the three value headers are the sort controls (click again to flip the direction) -->
+        <div class="tc-lhead" id="lhead">
+          <span></span><span>Харилцагч</span><span class="tc-col-rep">ХТ</span>
+          <button type="button" class="tc-sort" data-sort="cur"><span class="tc-sort-l">Энэ сар, ₮</span><small>1–22, дутуу сар</small></button>
+          <button type="button" class="tc-sort" data-sort="avg"><span class="tc-sort-l">Сарын дундаж, ₮</span><small>өмнөх 12 бүтэн сар</small></button>
+          <button type="button" class="tc-sort" data-sort="last"><span class="tc-sort-l">Сүүлийн авалт</span></button>
+          <span class="r">Идэвхтэй даалгавар</span><span></span>
+        </div>
+      </div>
+      <div class="tc-sheet-b" id="list-box">
+        <ul class="tc-list" id="list" aria-label="Харилцагчид"></ul>
+        <div class="tc-empty" id="empty" hidden><p id="empty-t"></p><button type="button" class="tc-btn" id="empty-clear">Шүүлт цэвэрлэх</button></div>
+        <p class="tc-foot" id="list-note"></p>
+      </div>
+      <div class="tc-bar" id="bar" hidden>
+        <p><b class="num" id="bar-n"></b><span id="bar-hid"></span></p>
+        <button type="button" class="tc-btn tc-ghost" id="sel-clear">Сонголт цэвэрлэх</button>
+        <button type="button" class="tc-btn tc-primary" id="to-form">Даалгавар өгөх</button>
+      </div>
+    </div>
+
+    <form class="tc-view" id="v-form" novalidate hidden>
+      <div class="tc-sheet-h">
+        <div class="tc-sheet-top">
+          <button type="button" class="tc-btn tc-ghost tc-back" data-back><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg>Буцах</button>
+          <div class="tc-sheet-ttl"><h2 id="form-title" tabindex="-1">Даалгавар өгөх</h2><p id="form-sub" class="num"></p></div>
+          <button type="button" class="tc-icon" data-close aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+      </div>
+      <div class="tc-sheet-b tc-form">
+        <div class="tc-field"><label for="i-title">Даалгаврын нэр</label>
+          <input id="i-title" name="title" maxlength="80" autocomplete="off" placeholder="Жишээ: Шинэ бүтээгдэхүүн санал болгох" aria-describedby="e-title"><p class="tc-err" id="e-title"></p></div>
+        <div class="tc-field"><label for="i-text">Хийх ажил / хүлээх үр дүн</label>
+          <textarea id="i-text" name="text" rows="4" maxlength="600" placeholder="Жишээ: ХХ бүтээгдэхүүнийг харилцагч бүрд санал болгож, 3+ ширхэг байршуулсан эсэх болон аваагүй шалтгааныг тэмдэглэнэ." aria-describedby="h-text e-text"></textarea>
+          <p class="tc-help" id="h-text">Бараа, тоон зорилт байвал энд бичнэ. Энэ текст сонгосон харилцагч бүрд адилхан очно.</p><p class="tc-err" id="e-text"></p></div>
+        <div class="tc-field"><label for="i-due">Дуусгах хугацаа</label><input type="date" id="i-due" name="due" aria-describedby="e-due"><p class="tc-err" id="e-due"></p></div>
+
+        <section class="tc-preview" aria-labelledby="pv-h">
+          <h3 id="pv-h">Хэнд, юу үүсэх</h3>
+          <p class="tc-pv-who"><b class="num" id="scope-n"></b><span id="scope-reps"></span></p>
+          <details class="tc-scope" id="scope"><summary><span class="tc-link">Сонгосон харилцагчдыг харах</span></summary><ul id="scope-list"></ul></details>
+          <p id="pv-main"></p>
+          <p class="tc-pv-meta" id="pv-meta"></p>
+        </section>
+        <p class="tc-err" id="e-save" role="alert"></p>
+      </div>
+      <div class="tc-bar">
+        <button type="button" class="tc-btn tc-ghost" data-back>Буцах</button>
+        <button type="submit" class="tc-btn tc-primary" id="submit"></button>
+      </div>
+    </form>
+
+    <div class="tc-view" id="v-done" hidden>
+      <div class="tc-sheet-h">
+        <div class="tc-sheet-top">
+          <div class="tc-sheet-ttl"><h2 id="done-title" tabindex="-1">Даалгавар үүслээ</h2></div>
+          <button type="button" class="tc-icon" data-close aria-label="Хаах"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+      </div>
+      <div class="tc-sheet-b">
+        <div class="tc-ok"><svg class="ic" aria-hidden="true"><use href="#i-done"/></svg><div><p class="tc-ok-n" id="done-n"></p><p id="done-g"></p></div></div>
+      </div>
+      <div class="tc-bar">
+        <button type="button" class="tc-btn tc-ghost" data-close>Хаах</button>
+        <button type="button" class="tc-btn tc-primary" id="done-go">«Даалгавар» хэсэгт харах</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="data/fixture.js?v=cb357efbd6"></script>
+  <script src="assets/core.js?v=ecf07bc6ae"></script>
+  <!-- the shared «Миний ажил» glue: «Цэс», same-webview navigation (Telegram launch data kept), the one Telegram Back handler -->
+  <script src="../rep-home/assets/deploy.js?v=190848321a"></script>
+  <script src="../rep-home/assets/workspace.js?v=0cca0d6a24"></script>
+  <script src="assets/app.js?v=e8a965952e"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
-/* «Миний ажил» home — the product's tokens (white/slate, one blue accent, Inter), three large touch targets. */
-@font-face { font-family: "Inter"; src: url("fonts/Inter-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("fonts/Inter-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("fonts/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+/* «Миний ажил» home — the product's tokens (white/slate, one blue accent, Inter), four large touch targets (the task route first). */
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Regular.woff2?v=e06f6b1bc5") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Medium.woff2?v=0ff3e94614") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-SemiBold.woff2?v=5cb7103e4e") format("woff2"); font-weight: 600; font-display: swap; }
 :root {
   --font: "Inter", "Segoe UI", "Noto Sans", Arial, sans-serif;
   --ink: #0F172A; --ink-2: #3B4558; --ink-3: #5F6B7D; --ink-4: #98A2B3;
@@ -27,12 +27,14 @@ h1, h2, p { margin: 0; }
   background: var(--surface); color: var(--ink-2); font-size: 13px; font-weight: 500; flex: none; }
 .hm-dot { width: 6px; height: 6px; border-radius: 50%; background: #F79009; }
 
-.hm-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.hm-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "ic go" "t t"; align-content: start; gap: 18px 12px; min-height: 176px; padding: 20px;
+.hm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.hm-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "ic go" "t t"; align-content: start; gap: 16px 12px; min-height: 164px; padding: 18px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--sh-1); color: var(--ink); text-decoration: none;
   -webkit-tap-highlight-color: transparent; }
 .hm-card:hover { border-color: var(--accent-line); background: #FCFDFF; }
 .hm-card:active { background: var(--accent-soft); }
+.hm-main { border-color: var(--accent-line); box-shadow: var(--sh-1), inset 0 3px 0 var(--accent); }
+.hm-main .hm-ic { background: var(--accent); color: #fff; }
 .hm-ic { grid-area: ic; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--accent-soft); color: var(--accent-strong); }
 .hm-ic svg { width: 26px; height: 26px; }
 .hm-go { grid-area: go; align-self: center; width: 22px; height: 22px; color: var(--ink-4); }
@@ -40,12 +42,25 @@ h1, h2, p { margin: 0; }
 .hm-t b { font-size: 19px; line-height: 26px; font-weight: 600; }
 .hm-t span { font-size: 15px; line-height: 21px; color: var(--ink-3); }
 
+.hm-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin-top: 14px; font-size: 13px; line-height: 18px; color: var(--ink-3); }
+.hm-legacy { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--accent-strong); font-size: 14px; font-weight: 500; text-decoration: none; }
+.hm-legacy:hover { text-decoration: underline; }
+.hm-legacy svg { width: 16px; height: 16px; flex: none; }
+.hm-foot .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 .hm-state { max-width: 520px; margin: 8vh auto 0; padding: 28px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--sh-1); }
 .hm-state h2 { font-size: 22px; line-height: 30px; font-weight: 600; }
 .hm-state p { margin-top: 8px; color: var(--ink-2); overflow-wrap: anywhere; }
 .hm-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 18px; padding: 0 18px; border-radius: 8px; background: var(--accent);
   color: #fff; font-weight: 500; text-decoration: none; }
 
+@media (max-width: 900px) and (min-width: 721px) {
+  .hm { padding-left: 20px; padding-right: 20px; }
+  .hm-grid { gap: 10px; }
+  .hm-card { padding: 16px 14px; min-height: 150px; }
+  .hm-t b { font-size: 17px; line-height: 23px; }
+  .hm-t span { font-size: 14px; line-height: 19px; }
+}
 @media (max-width: 720px) {
   .hm { padding: calc(16px + var(--sat)) 16px calc(24px + var(--sab)); }
   .hm-head { margin-bottom: 14px; }
@@ -56,4 +71,5 @@ h1, h2, p { margin: 0; }
   .hm-ic svg { width: 24px; height: 24px; }
   .hm-t b { font-size: 17px; line-height: 23px; }
   .hm-t span { font-size: 14px; line-height: 19px; }
+  .hm-foot { margin-top: 8px; }
 }

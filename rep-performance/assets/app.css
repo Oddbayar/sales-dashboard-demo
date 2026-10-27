@@ -1,8 +1,8 @@
 /* «Миний гүйцэтгэл» — own namespaced styles (rp-). Tokens, Inter and the right-drawer pattern are copied from
    ui/store-report/assets/styles.css (snapshot 2026-10-25); no shared stylesheet is loaded at runtime. */
-@font-face { font-family: "Inter"; src: url("fonts/Inter-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("fonts/Inter-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("fonts/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Regular.woff2?v=e06f6b1bc5") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Medium.woff2?v=0ff3e94614") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-SemiBold.woff2?v=5cb7103e4e") format("woff2"); font-weight: 600; font-display: swap; }
 
 :root {
   --font: "Inter", "Segoe UI", "Noto Sans", Arial, sans-serif;

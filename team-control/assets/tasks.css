@@ -1,0 +1,118 @@
+/* «Багийн хяналт» — task, reply and review styles shared by the team page and the store window's supervisor section.
+   Class rules only (tc-), no element or :root rules, so the store report's own styles are untouched. Moved from app.css; the store
+   report has fewer element resets, so list/margin/font resets are written here on the classes (marked «reset»). */
+
+/* ===== controls ===== */
+.tc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--ctl); padding: 0 14px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); font: 500 14px var(--font); color: var(--accent-strong); cursor: pointer; white-space: nowrap; }
+.tc-btn:hover { background: var(--accent-soft); border-color: var(--accent-line); }
+.tc-btn:disabled { color: var(--ink-4); background: var(--surface-2); border-color: var(--rule); cursor: default; }
+.tc-btn .ic { width: 18px; height: 18px; }
+.tc-ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
+.tc-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.tc-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.tc-icon { display: inline-grid; place-items: center; width: var(--ctl); height: var(--ctl); flex: none; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.tc-icon:hover { background: var(--surface-2); color: var(--ink); }
+.tc-icon .ic { width: 18px; height: 18px; }
+.tc-link { display: inline-flex; align-items: center; min-height: var(--ctl); padding: 0 8px; border: 0; background: none; color: var(--accent-strong); font: 500 14px var(--font); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--accent-line); }
+.tc-link:hover { text-decoration-color: currentColor; }
+
+/* status badge: icon + word (never colour alone) */
+.tc-st { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 999px; font-size: 13px; font-weight: 500; white-space: nowrap; border: 1px solid transparent; }
+.tc-st .ic { width: 15px; height: 15px; }
+.tc-st.s-todo { background: var(--surface); border-color: var(--border); color: var(--ink-2); }
+.tc-st.s-review { background: var(--warn-soft); color: var(--warn); }
+.tc-st.s-done { background: var(--pos-soft); color: var(--pos); }
+.tc-st.s-failed { background: var(--err-soft); color: var(--err); }
+.tc-code { color: var(--ink-3); font-size: 13.5px; white-space: nowrap; }
+.tc-chev { color: var(--ink-4); }
+
+/* the last decision / creation, shown above the list */
+.tc-flash { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 10px 14px; border-radius: 8px; background: var(--pos-soft); color: var(--pos); font-size: 14.5px; font-weight: 500; outline: none; }
+.tc-flash .ic { width: 18px; height: 18px; flex: none; }
+.tc-flash.warn { background: var(--warn-soft); color: var(--warn); }
+
+/* reply cell of a task row */
+.tc-rp { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; color: var(--ink-3); white-space: nowrap; }
+.tc-rp .ic { width: 15px; height: 15px; }
+.tc-rp.in { color: var(--warn); font-weight: 600; }
+.tc-rp.back { color: var(--accent-strong); font-weight: 500; }
+.tc-rp.none { color: var(--ink-4); }
+
+/* an opened assignment: task | reply + review, then the history */
+.tc-adet-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px 28px; }
+.tc-k { margin-bottom: 4px; font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
+.tc-adet-title { font-size: 16px; font-weight: 600; }
+.tc-adet-text { margin-top: 4px; font-size: 15px; white-space: pre-wrap; }
+.tc-kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 12px 0 0; }   /* reset */
+.tc-kv dt { font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
+.tc-kv dd { margin: 0; font-size: 14.5px; }
+.tc-reply { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.tc-reply p + p { margin-top: 6px; }
+.tc-res { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border: 1px solid; border-radius: 999px; font-size: 13.5px; font-weight: 600; }
+.tc-res .ic { width: 15px; height: 15px; }
+.r-done { color: var(--pos); border-color: #A6E9C5; background: var(--pos-soft); }
+.r-not_done { color: var(--err); border-color: #FDA29B; background: var(--err-soft); }
+.tc-reply-text { font-size: 15px; white-space: pre-wrap; }
+.tc-reason { font-size: 14.5px; color: var(--ink-2); }
+.tc-review { display: grid; gap: 6px; margin-top: 12px; }
+.tc-review label { font-size: 14px; font-weight: 600; }
+.tc-review textarea { min-height: 64px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--ink); font: 15px/1.45 var(--font); resize: vertical; }
+.tc-review textarea[aria-invalid] { border-color: var(--err); box-shadow: 0 0 0 1px var(--err); }
+.tc-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tc-note { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; padding: 10px 14px; border-radius: 10px; font-size: 14.5px; color: var(--ink); }
+.tc-note > .ic { width: 20px; height: 20px; margin-top: 1px; }
+.tc-note.back { background: var(--accent-soft); } .tc-note.back > .ic { color: var(--accent-strong); }
+.tc-note.s-done { background: var(--pos-soft); } .tc-note.s-done > .ic { color: var(--pos); }
+.tc-note.s-failed { background: var(--err-soft); } .tc-note.s-failed > .ic { color: var(--err); }
+.tc-muted { font-size: 14.5px; color: var(--ink-3); }
+.tc-conflict { margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-size: 14.5px; font-weight: 500; }
+.tc-hist { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.tc-hist ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }   /* reset */
+.tc-hist li { display: grid; grid-template-columns: 128px 84px minmax(0, 1fr); gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+.tc-hist li.tc-hist-old { display: block; color: var(--ink-3); }
+.tc-who { font-weight: 600; color: var(--ink-3); }
+.tc-go { margin-left: 4px; min-height: 32px; padding: 0 2px 0 6px; vertical-align: middle; }
+.tc-go .ic { width: 16px; height: 16px; }
+
+/* ===== task form fields ===== */
+.tc-field input, .tc-field select, .tc-field textarea {
+  min-height: var(--ctl); width: 100%; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 15px; font-family: inherit; }   /* reset: font */
+.tc-field { display: grid; gap: 6px; }
+.tc-field label { font-size: 14px; font-weight: 600; }
+.tc-opt { font-weight: 400; color: var(--ink-3); }
+.tc-field textarea { padding: 10px 12px; min-height: 72px; resize: vertical; line-height: 1.45; }
+.tc-field input[aria-invalid], .tc-field select[aria-invalid], .tc-field textarea[aria-invalid] { border-color: var(--err); box-shadow: 0 0 0 1px var(--err); }
+.tc-field input[type="date"] { max-width: 240px; }
+.tc-help { font-size: 13.5px; color: var(--ink-3); }
+.tc-err { font-size: 13.5px; font-weight: 500; color: var(--err); }
+.tc-err:empty { display: none; }
+
+/* ===== the rep's one reply form (Claude 31; store window rep view): result, required text/reason, one submit ===== */
+.tc-rform { display: grid; gap: 8px; padding: 12px 14px 14px; border: 1px solid var(--accent-line); border-radius: 10px; background: var(--surface); }
+.tc-rres { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }   /* reset */
+.tc-rres legend { width: 100%; margin-bottom: 6px; padding: 0; font-size: 14px; font-weight: 600; }
+.tc-radio { display: inline-flex; align-items: center; gap: 8px; min-height: var(--ctl); padding: 0 14px 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); font-size: 15px; cursor: pointer; }
+.tc-radio input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.tc-radio:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
+.tc-rres[aria-invalid] .tc-radio { border-color: var(--err); }
+.tc-ract { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.tc-note.sent { background: var(--warn-soft); } .tc-note.sent > .ic { color: var(--warn); }
+.tc-sent { font-weight: 600; color: var(--warn); }
+
+/* ===== storage unavailable (Claude 32): one banner on top with a retry; nothing pretends to be saved ===== */
+.tc-storage { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px; background: #FEF3F2; border-bottom: 1px solid #FDA29B; color: #B42318; font: 14.5px/1.45 var(--font); }
+.tc-storage > .ic { width: 20px; height: 20px; flex: none; }
+.tc-storage p { flex: 1 1 260px; margin: 0; }
+
+/* ===== the rep's assignment (Claude 32): task text → send-back note → the reply; details and history folded ===== */
+.tc-rtext { margin: 0 0 10px; font-size: 16px; line-height: 1.5; }
+.tc-note.tc-back { background: var(--warn-soft); border: 1px solid #FEC84B; }
+.tc-note.tc-back > .ic { color: var(--warn); }
+.tc-back .tc-k { color: var(--warn); }
+.tc-back-c { font-size: 15.5px; font-weight: 500; }
+.tc-more { margin-top: 12px; border-top: 1px solid var(--rule); }
+.tc-more > summary { display: flex; align-items: center; min-height: var(--ctl); cursor: pointer; font-size: 14px; font-weight: 600; color: var(--accent-strong); }
+.tc-more .tc-kv { margin-top: 2px; }
+.tc-more .tc-hist { margin-top: 10px; }
+.tc-rform .tc-btn:disabled { color: #fff; background: var(--ink-4); border-color: var(--ink-4); }   /* «Илгээж байна…» */

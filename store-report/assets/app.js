@@ -130,7 +130,7 @@
 
   // ---------- state ----------
   var byYm = {};
-  var state = { month: null, tab: 'products', q: '', sort: 'amount', showAll: false, inspect: null, metric: 'amount', fromLookup: false, ret: null };
+  var state = { month: null, tab: 'products', q: '', sort: 'amount', showAll: false, inspect: null, metric: 'amount', fromLookup: false, ret: null, sv: null };
   var FIRST_ROWS = 8;
 
   function showState(title, text, linkText, href) {
@@ -145,6 +145,8 @@
   // routes: ?view=lookup → code entry (wins over any other parameter; ?store only pre-fills the input);
   // ?store=<code>[&month=YYYY-MM][&from=lookup] → that report (code normalised like the bot: ST-13204, st-13204, 13204);
   // no parameters → the default report (local/standalone use).
+  // ?sv=<team customer>[&a=<assignment>] → the supervisor's store window (Claude 30; see supervisor() below).
+  // ?rep=<demo rep>&cust=<team customer>[&a=…][&at=task] → the same window for that demo rep's own tasks (Claude 31).
   function init() {
     var params = new URLSearchParams(location.search);
     document.addEventListener('click', function (e) {   // in-app links keep the Telegram launch data in the hash
@@ -154,6 +156,7 @@
     });
     if (params.get('view') === 'lookup') { showLookup(params.get('store')); telegram(); return; }
     var failed = function () { showState('Мэдээлэл ачаалж чадсангүй', 'Хуудсыг дахин ачаална уу.', 'Дахин ачаалах', location.pathname + location.search); };
+    if (params.get('sv') !== null || params.get('cust') !== null) { supervisor(params, failed); return; }
     if (!REG || !REG.stores) { failed(); return; }
     var want = (params.get('store') || '').trim();
     var code = want ? SC.normalize(want) : REG.default, entry = code && REG.stores[code];
@@ -165,20 +168,48 @@
       return;
     }
     // each report has its own fixture file (registry path); it is loaded before anything renders
-    var s = document.createElement('script');
-    s.src = entry.fixture;
-    s.onerror = failed;
-    s.onload = function () {
+    loadScript(entry.fixture, function () {
       FX = window.STORE_REPORT_FIXTURE;
       if (!FX || !FX.months || FX.store.code !== code) { failed(); return; }
       start(params);
-    };
+    }, failed);
+  }
+  function loadScript(src, done, failed) {
+    var s = document.createElement('script');
+    s.src = src; s.onerror = failed; s.onload = done;
     document.head.appendChild(s);
   }
 
+  // ---------- supervisor context (Claude 30): opened from «Багийн хяналт» (ui/team-control) on the same origin ----------
+  // The team page's scripts give the customer's identity and its report data profile (an explicit table, never matched by
+  // amounts) and add the task section under the report. The report itself is this page, unchanged. Rep menus and the code
+  // entry are hidden so the supervisor's work is not left by accident. Never loaded without ?sv= (or the rep demo's ?cust=).
+  var SV = ['../team-control/data/fixture.js', '../team-control/data/profiles.js', '../team-control/assets/core.js', '../team-control/assets/store-panel.js'];
+  function supervisor(params, failed) {
+    document.documentElement.classList.add('sv-mode');
+    if (params.get('sv') === null) document.documentElement.classList.add('rep-mode');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ws-menu], #to-lookup, .state-alt'), function (el) { el.remove(); });
+    var v = function (u) { return window.WS ? window.WS.asset(u) : u; };   // the published package's content versions
+    if (window.WS) window.WS.page({ back: onTgBack });   // Telegram Back: drawer → the route / «Багийн хяналт» it came from
+    (function next(k) {
+      if (k < SV.length) { loadScript(v(SV[k]), function () { next(k + 1); }, failed); return; }
+      window.TeamCore.ready.then(function () {   // the task store (IndexedDB) is open: assignments in links resolve against it
+        var c = window.TeamStorePanel.resolve(params);
+        if (c.fail) { showState.apply(null, c.fail); return; }   // unknown / another rep's customer: never another store's numbers
+        loadScript(v(c.fixture), function () {
+          FX = window.STORE_REPORT_FIXTURE;
+          if (!FX || !FX.months || FX.store.code !== c.profile) { failed(); return; }
+          FX.store = Object.assign({}, FX.store, c.store);   // the team customer's name, code and rep; the numbers stay the profile's
+          state.sv = c;
+          start(params);
+        }, failed);
+      });
+    })(0);
+  }
+
   function start(params) {
-    state.fromLookup = params.get('from') === 'lookup';
-    state.ret = params.get('from') === 'route' ? routeQuery(params.get('ret')) : null;
+    state.fromLookup = !state.sv && params.get('from') === 'lookup';
+    state.ret = (!state.sv || state.sv.role === 'rep') && params.get('from') === 'route' ? routeQuery(params.get('ret')) : null;
     if (state.ret !== null) { $('to-route').href = '../rep-route/' + (state.ret ? '?' + state.ret : ''); $('to-route').hidden = false; }
     FX.months.forEach(function (m) { byYm[m.ym] = m; });
     var m = params.get('month');
@@ -189,12 +220,12 @@
     $('head').hidden = false; $('report').hidden = false;
     app.setAttribute('aria-busy', 'false');
     watchHeader();
-    telegram();
+    if (state.sv) window.TeamStorePanel.mount(FX); else telegram();
   }
 
   function nav(url, replace) { url += location.hash; if (replace) location.replace(url); else location.assign(url); }
   // «Миний маршрут» return state: only its own known keys with short plain values; the path is fixed (never an outside URL)
-  var ROUTE_KEYS = ['tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope'];
+  var ROUTE_KEYS = ['tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope', 'demo', 'rep', 't'];   // demo/rep/t: the team demo (Claude 31)
   function routeQuery(raw) {
     var src = new URLSearchParams(raw || ''), out = new URLSearchParams();
     ROUTE_KEYS.forEach(function (k) { var v = src.get(k); if (v && v.length <= 60 && !/[<>:/\\]/.test(v)) out.set(k, v); });
@@ -233,7 +264,7 @@
   function onTgBack() {
     if ($('cd').open) $('cd').close();
     else if ($('dr').open) { if (drawer.stack.length > 1) popView(); else $('dr').close(); }
-    else if (!$('report').hidden && state.ret !== null) nav($('to-route').getAttribute('href'));
+    else if (!$('report').hidden && (state.ret !== null || state.sv)) nav($('to-route').getAttribute('href'));   // team: the panel's way back
     else if (!$('report').hidden && state.fromLookup) nav('?view=lookup&store=' + encodeURIComponent(FX.store.code), true);
     else return false;
     return true;
@@ -281,7 +312,7 @@
     renderGroup('categories', cats);
     renderDays();
     if ($('dr').open) renderDrawer(true);   // an open drawer always shows the current month (never stale)
-    var url = '?store=' + encodeURIComponent(FX.store.code) + (state.month !== FX.selectable_months[0] ? '&month=' + state.month : '') + (state.fromLookup ? '&from=lookup' : '') +
+    var url = (state.sv ? state.sv.query : '?store=' + encodeURIComponent(FX.store.code)) + (state.month !== FX.selectable_months[0] ? '&month=' + state.month : '') + (state.fromLookup ? '&from=lookup' : '') +
       (state.ret !== null ? '&from=route' + (state.ret ? '&ret=' + encodeURIComponent(state.ret) : '') : '');
     if (location.search !== url) history.replaceState(null, '', url + location.hash);   // the hash may carry Telegram launch data
   }
