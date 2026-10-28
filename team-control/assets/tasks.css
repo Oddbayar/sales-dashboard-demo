@@ -5,17 +5,17 @@
 /* ===== controls ===== */
 .tc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--ctl); padding: 0 14px; border: 1px solid var(--border); border-radius: 8px;
   background: var(--surface); font: 500 14px var(--font); color: var(--accent-strong); cursor: pointer; white-space: nowrap; }
-.tc-btn:hover { background: var(--accent-soft); border-color: var(--accent-line); }
+@media (hover: hover) and (pointer: fine) { .tc-btn:hover { background: var(--accent-soft); border-color: var(--accent-line); } }
 .tc-btn:disabled { color: var(--ink-4); background: var(--surface-2); border-color: var(--rule); cursor: default; }
 .tc-btn .ic { width: 18px; height: 18px; }
 .tc-ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
 .tc-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-.tc-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+@media (hover: hover) and (pointer: fine) { .tc-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; } }
 .tc-icon { display: inline-grid; place-items: center; width: var(--ctl); height: var(--ctl); flex: none; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink-2); cursor: pointer; }
-.tc-icon:hover { background: var(--surface-2); color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .tc-icon:hover { background: var(--surface-2); color: var(--ink); } }
 .tc-icon .ic { width: 18px; height: 18px; }
 .tc-link { display: inline-flex; align-items: center; min-height: var(--ctl); padding: 0 8px; border: 0; background: none; color: var(--accent-strong); font: 500 14px var(--font); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--accent-line); }
-.tc-link:hover { text-decoration-color: currentColor; }
+@media (hover: hover) and (pointer: fine) { .tc-link:hover { text-decoration-color: currentColor; } }
 
 /* status badge: icon + word (never colour alone) */
 .tc-st { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 999px; font-size: 13px; font-weight: 500; white-space: nowrap; border: 1px solid transparent; }
@@ -37,7 +37,7 @@
 .tc-rp .ic { width: 15px; height: 15px; }
 .tc-rp.in { color: var(--warn); font-weight: 600; }
 .tc-rp.back { color: var(--accent-strong); font-weight: 500; }
-.tc-rp.none { color: var(--ink-4); }
+.tc-rp.none { color: var(--ink-3); }
 
 /* an opened assignment: task | reply + review, then the history */
 .tc-adet-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px 28px; }
@@ -57,7 +57,7 @@
 .tc-reason { font-size: 14.5px; color: var(--ink-2); }
 .tc-review { display: grid; gap: 6px; margin-top: 12px; }
 .tc-review label { font-size: 14px; font-weight: 600; }
-.tc-review textarea { min-height: 64px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--ink); font: 15px/1.45 var(--font); resize: vertical; }
+.tc-review textarea { min-height: 64px; padding: 10px 12px; border: 1px solid var(--field-border); border-radius: 8px; background: var(--surface); color: var(--ink); font: 15px/1.45 var(--font); resize: vertical; }
 .tc-review textarea[aria-invalid] { border-color: var(--err); box-shadow: 0 0 0 1px var(--err); }
 .tc-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .tc-note { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; padding: 10px 14px; border-radius: 10px; font-size: 14.5px; color: var(--ink); }
@@ -77,7 +77,7 @@
 
 /* ===== task form fields ===== */
 .tc-field input, .tc-field select, .tc-field textarea {
-  min-height: var(--ctl); width: 100%; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 15px; font-family: inherit; }   /* reset: font */
+  min-height: var(--ctl); width: 100%; padding: 0 12px; border: 1px solid var(--field-border); border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 15px; font-family: inherit; }   /* reset: font */
 .tc-field { display: grid; gap: 6px; }
 .tc-field label { font-size: 14px; font-weight: 600; }
 .tc-opt { font-weight: 400; color: var(--ink-3); }
@@ -116,3 +116,42 @@
 .tc-more .tc-kv { margin-top: 2px; }
 .tc-more .tc-hist { margin-top: 10px; }
 .tc-rform .tc-btn:disabled { color: #fff; background: var(--ink-4); border-color: var(--ink-4); }   /* «Илгээж байна…» */
+
+/* ===== the task-tab detail (Claude 38/39): «Багийн хяналт → Даалгавар» and the store window's «Хянаж буй ажил» (opts.tab) =====
+   «Өгсөн даалгавар» | «ХТ-ийн сүүлийн хариу», then «Ахлахын шийдвэр» full width; one column up to 900px; history folded */
+.tc-tabdet { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.tc-dbox { min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.tc-dbox > .tc-k { margin: 0 0 6px; }   /* h4: no browser margins */
+.tc-ddec { grid-column: 1 / -1; }
+.tc-dmeta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 8px; font-size: 13.5px; color: var(--ink-3); }
+.tc-dbox > .tc-k + .tc-dmeta { margin-top: 0; }
+.tc-dbox .tc-adet-text { margin-top: 0; }
+.tc-dbox .tc-reply-text, .tc-dcomment { margin-top: 6px; font-size: 15px; white-space: pre-wrap; }
+.tc-dbox .tc-reason { margin-top: 6px; font-size: 15px; }
+.tc-ddec .tc-review { margin-top: 0; }
+.tc-ddec .tc-actions .tc-btn { white-space: nowrap; }
+.tc-hist-d { margin-top: 10px; border-top: 1px solid var(--border); }
+.tc-hist-d > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--accent-strong); }
+.tc-hist-d .tc-hist { margin-top: 0; padding-top: 0; border-top: 0; }
+.tc-hist-d .tc-hist > .tc-k { display: none; }   /* the summary names it */
+@media (max-width: 900px) { .tc-tabdet { grid-template-columns: 1fr; } }
+
+/* ===== Visual language v1 — the team page, the store window and (since release finish v1) the route opt in with <html data-ui="v1">;
+   the rules stay scoped. :where() keeps each rule the weight of the rule it replaces. ===== */
+:where(html[data-ui="v1"]) .tc-btn:where(:not(.tc-ghost, .tc-primary, :disabled)) { border-color: var(--ctl-border); }
+:where(html[data-ui="v1"]) .tc-icon, :where(html[data-ui="v1"]) .tc-radio { border-color: var(--ctl-border); }
+/* a status: 24px pill, icon + word (never colour alone) */
+:where(html[data-ui="v1"]) .tc-st { height: 24px; padding: 0 8px; font-size: 12px; font-weight: 600; }
+:where(html[data-ui="v1"]) .tc-st .ic { width: 14px; height: 14px; }
+:where(html[data-ui="v1"]) .tc-res { height: 24px; font-size: 13px; }
+/* the result line: compact, one size with the other notes */
+:where(html[data-ui="v1"]) .tc-flash { gap: 6px; padding: 6px 12px; font-size: 13px; line-height: 18px; }
+:where(html[data-ui="v1"]) .tc-flash .ic { width: 16px; height: 16px; }
+/* sizes by role: labels 12, notes and meta 13, body 14 (no half pixels); inner boxes 8px */
+:where(html[data-ui="v1"]) .tc-k, :where(html[data-ui="v1"]) .tc-kv dt { font-size: 12px; }
+:where(html[data-ui="v1"]) .tc-code, :where(html[data-ui="v1"]) .tc-rp, :where(html[data-ui="v1"]) .tc-hist li, :where(html[data-ui="v1"]) .tc-help,
+:where(html[data-ui="v1"]) .tc-err, :where(html[data-ui="v1"]) .tc-dmeta { font-size: 13px; }
+:where(html[data-ui="v1"]) .tc-kv dd, :where(html[data-ui="v1"]) .tc-reason, :where(html[data-ui="v1"]) .tc-note, :where(html[data-ui="v1"]) .tc-muted,
+:where(html[data-ui="v1"]) .tc-conflict, :where(html[data-ui="v1"]) .tc-storage { font-size: 14px; }
+:where(html[data-ui="v1"]) .tc-back-c { font-size: 15px; }
+:where(html[data-ui="v1"]) .tc-reply, :where(html[data-ui="v1"]) .tc-note, :where(html[data-ui="v1"]) .tc-rform, :where(html[data-ui="v1"]) .tc-dbox { border-radius: 8px; }

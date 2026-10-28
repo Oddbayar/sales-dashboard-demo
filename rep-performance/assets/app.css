@@ -10,6 +10,7 @@
   --accent: #2563EB; --accent-strong: #1D4ED8; --accent-soft: #EEF3FE; --accent-line: #C7D7FD;
   --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #F8FAFC; --surface-3: #F1F4F8;
   --border: #E4E7EC; --border-strong: #CDD3DC; --rule: #EEF1F4;
+  --field-border: #868FA1;   /* selects: ≥3:1 against white and the page */
   --pos: #067647; --warn: #B54708; --neg: #C4520F; --bar: #8FB0F4;
   --sh-1: 0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .03);
   --sh-2: 0 4px 16px rgba(16, 24, 40, .10), 0 1px 3px rgba(16, 24, 40, .05);
@@ -31,16 +32,16 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp { max-width: 1120px; margin: 0 auto; padding: 16px 24px 32px; }
 
 /* ===== controls ===== */
-.rp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--ctl); padding: 0 14px; border: 1px solid var(--border); border-radius: 8px;
+.rp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--ctl); padding: 0 14px; border: 1px solid var(--ctl-border, var(--border)); border-radius: 8px;
   background: var(--surface); font: 500 14px var(--font); color: var(--accent-strong); cursor: pointer; white-space: nowrap; text-decoration: none; }
-.rp-btn:hover { background: var(--accent-soft); border-color: var(--accent-line); }
+@media (hover: hover) and (pointer: fine) { .rp-btn:hover { background: var(--accent-soft); border-color: var(--accent-line); } }
 .rp-btn:disabled { color: var(--ink-4); background: var(--surface-2); border-color: var(--rule); cursor: default; }
 .rp-btn .ic { width: 18px; height: 18px; }
 .rp-ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
 .rp-primary { background: var(--accent); border-color: var(--accent); color: #fff; margin-top: 18px; }
-.rp-primary:hover { background: var(--accent-strong); color: #fff; }
-.rp-icon { display: inline-grid; place-items: center; width: var(--ctl); height: var(--ctl); flex: none; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink-2); cursor: pointer; }
-.rp-icon:hover { background: var(--surface-2); color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .rp-primary:hover { background: var(--accent-strong); color: #fff; } }
+.rp-icon { display: inline-grid; place-items: center; width: var(--ctl); height: var(--ctl); flex: none; border: 1px solid var(--ctl-border, var(--border)); border-radius: 8px; background: var(--surface); color: var(--ink-2); cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .rp-icon:hover { background: var(--surface-2); color: var(--ink); } }
 .rp-icon .ic { width: 18px; height: 18px; }
 
 /* info disclosure (plan provenance, packs meaning) */
@@ -48,9 +49,10 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-info summary { display: inline-flex; align-items: center; gap: 6px; min-height: var(--ctl); min-width: var(--ctl); justify-content: center; padding: 0 10px; border-radius: 8px;
   list-style: none; cursor: pointer; font: 500 13px var(--font); color: var(--accent-strong); }
 .rp-info summary::-webkit-details-marker { display: none; }
-.rp-info summary:hover, .rp-info[open] summary { background: var(--accent-soft); }
+.rp-info[open] summary { background: var(--accent-soft); }
+@media (hover: hover) and (pointer: fine) { .rp-info summary:hover { background: var(--accent-soft); } }
 .rp-pop { position: absolute; right: 0; top: calc(100% + 4px); z-index: 5; width: min(340px, calc(100vw - 32px)); padding: 12px 14px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--sh-2); font-size: 13.5px; line-height: 1.5; color: var(--ink-2); font-weight: 400; }
+  border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--sh-2); font-size: 13px; line-height: 1.5; color: var(--ink-2); font-weight: 400; }
 .rp-left .rp-pop { right: auto; left: -8px; }
 
 /* ===== header ===== */
@@ -60,14 +62,12 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-meta { display: flex; flex-direction: column; align-items: flex-end; }
 .rp-meta .rp-info summary { margin-right: -10px; }
 .rp-asof { display: flex; align-items: center; gap: 8px; min-height: 28px; font-size: 13px; color: var(--ink-3); }
-.rp-pill { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--ink-2); font-weight: 500; font-size: 12px; }
-.dot { width: 6px; height: 6px; border-radius: 50%; background: #F79009; }
 .rp-notice { margin: 0 0 12px; padding: 10px 14px; border-radius: 8px; background: #FFFAEB; color: var(--warn); font-size: 14px; }
 
 /* ===== sections ===== */
 .rp-sec + .rp-sec { margin-top: 16px; }
 .rp-sec-h { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 10px; }
-.rp-kick { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink-3); letter-spacing: .03em; text-transform: uppercase; }
+.rp-kick { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink-3); }   /* sentence case: no tracked capitals */
 .rp-sec-h h2 { font-size: 17px; line-height: 24px; font-weight: 600; }
 
 /* current month: two compact cards */
@@ -85,8 +85,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-kv dt { color: var(--ink-3); }
 .rp-kv dd { font-weight: 500; white-space: nowrap; }
 .rp-track { display: block; height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
-.rp-track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
-.is-done .rp-track i { background: var(--pos); }
+.rp-track i { display: block; height: 100%; border-radius: inherit; background: var(--data); }   /* an actual value: slate; plan met: green (+ ✓) */
+.is-done .rp-track i { background: var(--data-met); }
 
 /* 12 full months: compact list */
 .rp-card { padding: 12px 20px 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--sh-1); }
@@ -95,8 +95,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-lhead { padding: 0 8px 6px; font-size: 12px; font-weight: 500; color: var(--ink-3); border-bottom: 1px solid var(--rule); }
 .rp-list li + li { border-top: 1px solid var(--rule); }
 .rp-row { width: 100%; min-height: 56px; margin: 1px 0; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; }
-.rp-row:hover { background: var(--surface-2); }
-.rp-row.is-open { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+@media (hover: hover) and (pointer: fine) { .rp-row:hover { background: var(--surface-2); } }
+.rp-row.is-open { background: var(--accent-soft); }
 .rp-rm b { font-size: 15px; font-weight: 600; }
 .rp-go { color: var(--ink-3); }
 .rp-cell { display: grid; grid-template-columns: 76px minmax(0, 1fr); grid-template-areas: "pct track" "ap ap"; column-gap: 10px; align-items: center; min-width: 0; }
@@ -128,19 +128,19 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-ycols li.yr-start::before { content: ""; position: absolute; left: 0; top: 6px; bottom: -22px; border-left: 1.5px dashed var(--border-strong); pointer-events: none; }
 .rp-col { position: relative; display: block; width: 100%; height: calc(var(--padt) + var(--ph) + var(--mh)); padding: 0; border: 0; border-radius: 8px;
   background: transparent; font: inherit; color: inherit; cursor: pointer; }
-.rp-col:hover { background: rgba(37, 99, 235, .05); }
+@media (hover: hover) and (pointer: fine) { .rp-col:hover { background: rgba(37, 99, 235, .05); } }
 .rp-col:focus-visible { outline-offset: -2px; }
 .rp-col.is-open { background: rgba(37, 99, 235, .09); }
 /* one label band above the plot: the number only (the unit is in .rp-ytitle), same baseline in every column */
 .rp-cv { position: absolute; left: 0; right: 0; top: 0; height: var(--padt); display: block; text-align: center; line-height: var(--padt);
-  font-size: 12.5px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+  font-size: 12px; font-weight: 500; color: var(--ink); white-space: nowrap; }
 .is-done .rp-cv { color: var(--pos); font-weight: 600; }
 .rp-bar .rp-ok { position: absolute; top: 4px; left: 50%; width: 14px; height: 14px; transform: translateX(-50%); color: #fff; }   /* met plan: tick inside the bar top */
 .is-na .rp-cv, .is-noplan .rp-cv { color: var(--ink-3); font-weight: 500; }
 .rp-cplot { position: absolute; left: 0; right: 0; top: var(--padt); height: var(--ph); }
-.rp-bar { position: absolute; left: 50%; width: min(56%, 40px); min-height: 2px; transform: translateX(-50%); border-radius: 4px 4px 0 0; background: var(--accent); }
+.rp-bar { position: absolute; left: 50%; width: min(56%, 40px); min-height: 2px; transform: translateX(-50%); border-radius: 4px 4px 0 0; background: var(--data); }
 .rp-bar.neg { border-radius: 0 0 4px 4px; }
-.is-done .rp-bar { background: var(--pos); }
+.is-done .rp-bar { background: var(--data-met); }
 .rp-nobar { position: absolute; inset: 4px 0 0; left: 50%; width: min(56%, 40px); transform: translateX(-50%); display: grid; place-items: center; border: 1px dashed var(--border-strong);
   border-radius: 4px; background: repeating-linear-gradient(45deg, #F8FAFC 0 4px, #EEF1F4 4px 8px); }
 .rp-nobar span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
@@ -159,7 +159,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 /* ===== drawer: one right sheet (landscape 600px, portrait tablet wider, phone full width) ===== */
 .rp-sheet { position: fixed; inset: 0 0 0 auto; margin: 0; width: min(600px, 100vw); max-width: none; height: 100%; max-height: 100%; padding: 0; border: 0;
-  border-radius: 16px 0 0 16px; background: var(--surface); color: var(--ink); box-shadow: var(--sh-2); display: none; flex-direction: column; overflow: hidden; }
+  border-radius: 12px 0 0 12px; background: var(--surface); color: var(--ink); box-shadow: var(--sh-2); display: none; flex-direction: column; overflow: hidden; }
 .rp-sheet[open] { display: flex; }
 .rp-sheet::backdrop { background: rgba(15, 23, 42, .32); }
 @media (orientation: portrait) and (min-width: 600px) { .rp-sheet { width: min(640px, calc(100vw - 72px)); } }
@@ -175,7 +175,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-sheet-b { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 14px 20px 24px; }
 
 .rp-dsum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.rp-dblk { display: grid; gap: 6px; align-content: start; padding: 8px 12px 12px; border: 1px solid var(--border); border-radius: 10px; min-width: 0; }
+.rp-dblk { display: grid; gap: 6px; align-content: start; padding: 8px 12px 12px; border: 1px solid var(--border); border-radius: 8px; min-width: 0; }
 .rp-dblk.is-active { border-color: var(--accent-line); box-shadow: inset 0 2px 0 var(--accent); }
 .rp-dblk .rp-mh { min-height: 22px; }
 .rp-dblk .rp-mh h3 { font-size: 13px; }
@@ -186,15 +186,12 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-dblk .rp-track { height: 6px; }
 
 .rp-ctl { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 14px 0 6px; }
-.rp-seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: 10px; background: var(--surface-3); }
-.rp-seg button { min-height: var(--ctl); padding: 0 14px; border: 0; border-radius: 8px; background: transparent; font: 500 14px var(--font); color: var(--ink-2); cursor: pointer; white-space: nowrap; }
-.rp-seg button:hover { color: var(--ink); }
-.rp-seg button[aria-pressed="true"] { background: var(--surface); color: var(--accent-strong); font-weight: 600; box-shadow: var(--sh-1); }
+/* the switches are the shared segmented control (.ws-seg, ../rep-home/assets/workspace.css) */
 
 .rp-legend { display: flex; flex-wrap: wrap; gap: 2px 14px; min-height: 20px; font-size: 12px; color: var(--ink-3); }
 .lg { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .lg i { display: inline-block; width: 16px; height: 0; }
-.lg-act i { border-top: 2.5px solid var(--accent); }
+.lg-act i { border-top: 2.5px solid var(--data-line); }
 .lg-plan i { border-top: 1.5px dashed var(--ink-3); }
 .lg-bar i, .lg-neg i, .lg-na i { width: 10px; height: 10px; border-radius: 2px; }
 .lg-bar i { background: var(--bar); }
@@ -208,8 +205,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-chart .z { stroke: var(--border-strong); stroke-width: 1.2; }
 .rp-chart .yt, .rp-chart .xt, .rp-chart .yu { font: 12px var(--font); fill: var(--ink-3); }
 .rp-chart .xt.on { fill: var(--accent-strong); font-weight: 600; }
-.rp-chart .act { fill: none; stroke: var(--accent); stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
-.rp-chart .pt { fill: var(--accent); }
+.rp-chart .act { fill: none; stroke: var(--data-line); stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }   /* actual: slate; the chosen day: blue */
+.rp-chart .pt { fill: var(--data-line); }
 .rp-chart .pt.on { fill: var(--accent-strong); stroke: #fff; stroke-width: 2; }
 .rp-chart .plan { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 5 4; }
 .rp-chart .bar { fill: var(--bar); }
@@ -221,17 +218,17 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-chart .guide { stroke: var(--accent-line); stroke-width: 1.5; }
 
 .rp-inspect { display: flex; align-items: stretch; gap: 8px; margin-top: 8px; }
-.rp-step { display: grid; place-items: center; align-content: center; width: 52px; min-height: 52px; flex: none; padding: 2px 0; border: 1px solid var(--border); border-radius: 8px;
+.rp-step { display: grid; place-items: center; align-content: center; width: 52px; min-height: 52px; flex: none; padding: 2px 0; border: 1px solid var(--ctl-border, var(--border)); border-radius: 8px;
   background: var(--surface); color: var(--ink-2); font: 500 12px/14px var(--font); cursor: pointer; }
 .rp-step .ic { width: 18px; height: 18px; }
-.rp-step:hover { background: var(--surface-2); color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .rp-step:hover { background: var(--surface-2); color: var(--ink); } }
 .rp-step:disabled { color: var(--ink-4); background: var(--surface-2); cursor: default; }
 .rp-readout { flex: 1; min-width: 0; padding: 6px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface-2); }
 .rp-ro-d { font-size: 14px; font-weight: 600; }
-.rp-ro-v { display: flex; flex-wrap: wrap; gap: 0 16px; font-size: 13.5px; color: var(--ink-3); }
+.rp-ro-v { display: flex; flex-wrap: wrap; gap: 0 16px; font-size: 13px; color: var(--ink-3); }
 .rp-ro-v b { font-weight: 600; color: var(--ink); white-space: nowrap; }
 .rp-ro-na { color: var(--ink-3); font-style: italic; }
-.rp-ref { margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
+.rp-ref { margin-top: 8px; font-size: 12px; color: var(--ink-3); }
 
 .rp-days { margin-top: 10px; border-top: 1px solid var(--rule); }
 .rp-days summary { display: flex; align-items: center; gap: 6px; min-height: var(--ctl); list-style: none; cursor: pointer; font: 600 14px var(--font); color: var(--accent-strong); }
@@ -243,7 +240,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .rp-tbl td { padding: 5px 8px; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }
 .rp-tbl th:first-child, .rp-tbl td:first-child { text-align: left; }
 .rp-tbl .wd { margin-left: 6px; font-size: 12px; color: var(--ink-3); }
-.rp-tbl .z0 { color: var(--ink-4); }
+.rp-tbl .z0 { color: var(--ink-3); font-weight: 400; }
 .rp-tbl .ng { color: var(--neg); font-weight: 600; }
 .rp-tbl tr.on td { background: var(--accent-soft); font-weight: 600; }
 .rp-tbl tr.na td { text-align: left; color: var(--ink-3); font-style: italic; }
@@ -260,7 +257,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 @media (max-width: 719px) { .rp-cards { grid-template-columns: minmax(0, 1fr); } }   /* narrow tablet portrait: one card per row, labels stay on one line */
 /* <768px: the year chart scrolls inside itself (axis stays), 52px per month; fades mark the hidden side */
 @media (max-width: 767px) {
-  .rp-yscroll { overflow-x: auto; overscroll-behavior-x: contain; }
+  .rp-yscroll { overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; }   /* sideways only: no 2px vertical scroll of its own */
   .rp-yinner { width: 624px; }
   .rp-yc::before, .rp-yc::after { content: ""; position: absolute; z-index: 3; top: 0; bottom: 20px; width: 32px; pointer-events: none; opacity: 0; }
   .rp-yc::before { left: 44px; background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0)); }
@@ -317,7 +314,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   #d-next .ic { order: 1; }
   .rp-ro-v span:not(.rp-ro-na) { display: flex; justify-content: space-between; gap: 8px; width: 100%; }
   .rp-tbl th, .rp-tbl td { padding-left: 4px; padding-right: 4px; }
-  .rp-tbl { font-size: 13.5px; }
+  .rp-tbl { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 
@@ -333,4 +330,95 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 @media (max-width: 599px) {
   .rp { padding-top: calc(12px + var(--sat)); padding-bottom: calc(24px + var(--sab)); }
   .rp-meta-top { width: 100%; justify-content: space-between; }
+}
+
+/* ===== Claude 43: denser — the pages' two-row header, two cards side by side from 600px, a shorter year chart,
+   compact controls, a one-line drawer head ‹ [month ▾] › ===== */
+/* header: title · «Цэс» / ХТ · Демо · date · «Жишиг төлөвлөгөө ⓘ» */
+.rp-head { display: grid; grid-template-columns: minmax(0, 1fr); justify-content: stretch; gap: 0; margin-bottom: 8px; }
+.rp-h1 { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rp-h1 > [data-ws-menu] { margin: -6px 0; }
+.rp-h2 { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; margin: -2px 0 -6px; font-size: 13px; color: var(--ink-3); }
+.rp-h2 .rp-sub { font-size: 13px; white-space: nowrap; }
+.rp-h2 .rp-asof { min-height: 0; font-size: 13px; white-space: nowrap; }
+.rp-h2 .rp-info summary { margin-left: -10px; white-space: nowrap; }
+/* the current month: «2026.10 · 1–22-ны гүйцэтгэл», the whole-month plan said once; «Сарын явц» */
+.rp-sec + .rp-sec { margin-top: 12px; }
+.rp-sec-h { align-items: center; margin-bottom: 8px; }
+.rp-kick { font-size: 12px; line-height: 16px; }
+.rp-sec-h h2 { font-size: 16px; line-height: 22px; }
+.rp-span { font-size: 12px; line-height: 16px; color: var(--ink-3); }
+.rp-sec-h .rp-btn { flex: none; position: relative; min-height: 32px; padding: 0 12px; font-size: 13px; }   /* the pages' compact button: 32px, 13px */
+.rp-sec-h .rp-btn::after { content: ""; position: absolute; inset: -7px -1px; }   /* 44px tap (from the padding box: 30 + 14) */
+/* two cards: % → actual / plan / left or over → bar */
+.rp-cards { gap: 12px; }
+.rp-mcard { gap: 6px; padding: 12px 16px; }
+.rp-mh { min-height: 24px; }
+.rp-mh h3 { font-size: 14px; line-height: 20px; }
+.rp-mh .rp-info summary { margin: -10px 0; }
+.rp-pct b { font-size: 28px; line-height: 34px; }   /* the key number: 28 on every page */
+.rp-pct > span { font-size: 12px; }
+.rp-kv div { font-size: 13px; line-height: 20px; }
+.rp-track { height: 6px; }
+/* the year card: title, then the two compact control groups; the plot ~190px on a portrait tablet */
+.rp-card { padding: 12px 16px 4px; }
+.rp-hist-h { flex-wrap: wrap; row-gap: 6px; }
+.rp-htitle { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; }
+.rp-htitle h2 { font-size: 16px; line-height: 22px; }
+.rp-hctl { gap: 10px; }
+.rp-hctl, .rp-ctl { padding: 4px 0; }
+.rp-ytitle { margin-top: 2px; }
+.rp-yc { --padt: 22px; --mh: 24px; }
+.rp-hint { margin: 2px 0 6px 44px; font-size: 12px; }
+.rp-row { min-height: 52px; padding: 5px 8px; }
+@media (orientation: portrait) and (min-width: 600px) { .rp-yc { --ph: 190px; } }
+@media (max-width: 719px) and (min-width: 600px) { .rp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }   /* 600px: side by side */
+@media (max-width: 760px) {   /* the controls take their own line under the title, both groups in one row */
+  .rp-hist-h { flex-direction: column; align-items: stretch; }
+  .rp-hctl { justify-content: flex-start; }
+}
+/* the drawer: ‹ [month ▾] › and close on one line, one short sub line; compact blocks and controls */
+.rp-sheet-h { gap: 2px; padding: 8px 12px 8px 16px; }
+.rp-sheet-top { align-items: center; justify-content: space-between; }
+.rp-mstep { display: flex; align-items: center; gap: 4px; }
+.rp-mstep .rp-icon:disabled { opacity: .4; cursor: default; }
+.rp-msel { position: relative; display: flex; align-items: center; }
+.rp-msel select { appearance: none; height: var(--ctl); min-width: 0; padding: 0 30px 0 12px; border: 1px solid var(--field-border); border-radius: 8px; background: var(--surface);
+  font: 600 17px var(--font); color: var(--ink); cursor: pointer; }
+.rp-msel select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.rp-msel .ic { position: absolute; right: 8px; color: var(--ink-3); pointer-events: none; }
+.rp-dsub { font-size: 13px; line-height: 18px; color: var(--ink-3); }
+.rp-sheet-b { padding: 12px 16px 20px; }
+.rp-dblk { gap: 4px; padding: 8px 12px 10px; }
+.rp-dblk .rp-pct b { font-size: 22px; line-height: 28px; }
+.rp-dblk .rp-kv div { line-height: 19px; }
+.rp-ctl { margin: 8px 0 2px; }
+.rp-legend { min-height: 18px; }
+.rp-inspect { margin-top: 6px; }
+.rp-step { min-height: 48px; }
+.rp-ref { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+.rp-ref .rp-info summary { min-height: 44px; min-width: 44px; margin: -10px 0; padding: 0 6px; color: var(--ink-3); }   /* a 44px target in a 24px line */
+.rp-days { margin-top: 6px; }
+@media (max-height: 560px) {   /* a low screen: the chart and the selected day come quickly */
+  .rp-dsum .rp-dblk { padding: 6px 10px 8px; }
+  .rp-dblk .rp-pct b { font-size: 20px; line-height: 24px; }
+  .rp-dblk .rp-kv div { font-size: 12px; line-height: 17px; }
+  .rp-ctl { margin-top: 6px; }
+}
+@media (max-width: 599px) {
+  .rp-head { margin-bottom: 8px; }
+  .rp-cards { gap: 10px; }
+  .rp-mcard .rp-mmain { grid-template-columns: auto minmax(0, 1fr); column-gap: 18px; }   /* one column of cards: % beside the numbers, short */
+  .rp-mcard .rp-pct { display: block; }
+  .rp-sec-h { flex-direction: row; align-items: center; }
+  .rp-hctl .rp-seg { flex: 1 1 auto; }
+  .rp-sheet-h { padding: 8px 10px 8px 14px; }
+}
+@media (max-width: 640px) { .rp-mcard { padding: 12px; } .rp-card { padding: 12px 12px 4px; } }   /* cards: 12px 16px, 12px up to 640px (every page) */
+/* the two sections read alike: «kicker title» on one line, then the period line — «Явж буй сар 2026.10 · 1–22» / «Өмнөх 12 бүтэн сар …» */
+#cur .rp-sec-h > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; }
+#cur .rp-sec-h .rp-span { flex-basis: 100%; }
+@media (max-width: 400px) {   /* 320px (zoomed desktop, small phone): the % above the numbers, so whole amounts fit without side scroll */
+  .rp-mcard .rp-mmain { grid-template-columns: minmax(0, 1fr); }
+  .rp-kv div { flex-wrap: wrap; column-gap: 8px; }
 }

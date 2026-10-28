@@ -4,7 +4,8 @@
 .ws-menu-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px;
   border: 1px solid #E4E7EC; border-radius: 8px; background: #FFFFFF; font: 500 14px "Inter", "Segoe UI", "Noto Sans", Arial, sans-serif; color: #1D4ED8;
   cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-.ws-menu-btn:hover, .ws-menu-btn[aria-expanded="true"] { background: #EEF3FE; border-color: #C7D7FD; }
+.ws-menu-btn[aria-expanded="true"] { background: #EEF3FE; border-color: #C7D7FD; }
+@media (hover: hover) and (pointer: fine) { .ws-menu-btn:hover { background: #EEF3FE; border-color: #C7D7FD; } }
 .ws-menu-btn:focus-visible, .ws-pop a:focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; }
 .ws-ic { width: 18px; height: 18px; flex: none; }
 .ws-pop { position: absolute; z-index: 40; top: calc(100% + 6px); right: 0; width: min(290px, calc(100vw - 24px)); padding: 6px;
@@ -13,7 +14,7 @@
 .ws-pop[hidden] { display: none; }
 .ws-pop ul { margin: 4px 0 0; padding: 4px 0 0; list-style: none; border-top: 1px solid #EEF1F4; }
 .ws-pop a { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 10px; border-radius: 8px; color: #0F172A; text-decoration: none; cursor: pointer; }
-.ws-pop a:hover { background: #F8FAFC; }
+@media (hover: hover) and (pointer: fine) { .ws-pop a:hover { background: #F8FAFC; } }
 .ws-pop .ws-home { min-height: 44px; font-size: 14px; font-weight: 500; color: #3B4558; }
 .ws-pop .ws-home .ws-ic, .ws-item .ws-ic { color: #5F6B7D; }
 .ws-t { display: grid; min-width: 0; }
@@ -23,3 +24,61 @@
 .ws-item.is-active { background: #EEF3FE; box-shadow: inset 3px 0 0 #2563EB; }
 .ws-item.is-active .ws-ic { color: #1D4ED8; }
 @media (prefers-reduced-motion: reduce) { .ws-pop { transition: none; } }
+
+/* ===== Visual language v1 (runs/claude_visual_language_v1/DESIGN_RULES.mn.md) — opt-in with <html data-ui="v1">.
+   Every page opts in (store report, «Багийн хяналт», «Миний гүйцэтгэл», since release finish v1 also the route and the home page);
+   the ws- classes appear only where a page puts them. Tokens by role, the page frame and title, the demo tag
+   beside «Цэс», the product mark in «Цэс», one compact segmented control, one count badge, one pressed state. ===== */
+html[data-ui="v1"] {
+  /* colour by role: blue = action, link, choice, focus · slate = ordinary data · green = met/confirmed · amber = review/attention ·
+     red = error/negative · stripes = a partial period. A customer company's colours never take one of these roles. */
+  --accent: #2563EB; --accent-strong: #1D4ED8; --accent-soft: #EEF3FE; --accent-line: #C7D7FD;
+  --pos: #067647; --pos-soft: #ECFDF3; --warn: #B54708; --warn-soft: #FFFAEB; --warn-mark: #DC6803; --err: #B42318; --err-soft: #FEF3F2; --neg: #B42318;
+  --ctl-border: #CDD3DC;   /* buttons and segmented controls; fields keep --field-border (≥3:1), cards --border, layers --sh-2 */
+  --data: #7C8AA0;         /* an actual value: bars, progress (3.5:1 on white, 3.2:1 on the track) */
+  --data-line: #475467;    /* a line of actual values */
+  --data-met: #2E9A66;     /* plan met, always with ✓ */
+  --data-neg: #D92D20;     /* a negative value */
+  --data-track: #F1F4F8;
+  --data-part: repeating-linear-gradient(135deg, #7C8AA0 0 6px, #B4BFCE 6px 8px);       /* a partial period */
+  --data-part-sel: repeating-linear-gradient(135deg, #2563EB 0 6px, #7FA3F2 6px 8px);   /* … the chosen one */
+  --bar: var(--data); --bar-edge: var(--data); --bar-met: var(--data-met);              /* the pages' own bar tokens follow */
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px;
+  --page-max: 1120px; --gutter: 24px; --page-top: 16px;
+}
+@media (max-width: 860px) { html[data-ui="v1"] { --gutter: 16px; --page-top: 12px; } }
+:where(html[data-ui="v1"]) :where(b, strong) { font-weight: 600; }   /* the 600 file is the boldest one loaded: never a synthetic bold */
+/* page frame and title: one width, one gutter, «Цэс» at the same place on every page; the title 24 (20 up to 640px) */
+html[data-ui="v1"] .ws-page { max-width: var(--page-max); padding-left: var(--gutter); padding-right: var(--gutter); padding-top: calc(var(--page-top) + var(--sat, 0px)); }
+html[data-ui="v1"] .ws-title { font-size: 24px; line-height: 30px; font-weight: 600; letter-spacing: -0.02em; }
+@media (max-width: 640px) { html[data-ui="v1"] .ws-title { font-size: 20px; line-height: 26px; } }
+html[data-ui="v1"] .ws-menu-btn { border-color: var(--ctl-border); }
+/* the demo tag: one look, always just left of «Цэс» (the explanation is in the «Цэс» head; wide screens say it here too) */
+html[data-ui="v1"] .ws-slot { align-items: center; gap: 8px; }
+.ws-demo { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 8px; border: 1px solid #E4E7EC; border-radius: 999px; background: #FFFFFF;
+  font: 500 12px/1 var(--font, "Inter", "Segoe UI", Arial, sans-serif); color: #3B4558; white-space: nowrap; }
+.ws-demo::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #F79009; }
+.ws-demo-l { display: none; }
+@media (min-width: 1024px) { .ws-demo-l { display: inline; } }
+/* «Цэс» head: the product mark and name (the brand lives here and in the favicon, never in the work area) */
+.ws-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; padding: 6px 10px 10px; border-bottom: 1px solid #EEF1F4; }
+.ws-mark { width: 24px; height: 24px; flex: none; border-radius: 6px; background: #10213B url("data:image/png;base64,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") center / cover; }
+.ws-brand b { display: block; font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: .04em; color: #10213B; }
+.ws-brand small { display: block; font-size: 12px; line-height: 16px; color: #5F6B7D; }
+/* one segmented control (switches a view, a metric or a filter): 32px choices in one outlined group, a 44px tap through ::after;
+   the chosen one blue — fill and a 1px edge (5.2:1), not the fill alone */
+html[data-ui="v1"] .ws-seg { display: inline-flex; flex-wrap: nowrap; gap: 2px; margin: 0; padding: 2px; border: 1px solid var(--ctl-border); border-radius: 8px;
+  background: var(--surface); box-shadow: none; overflow: visible; }
+html[data-ui="v1"] .ws-seg > button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 32px; margin: 0; padding: 0 12px;
+  border: 0; border-radius: 6px; background: transparent; box-shadow: none; font: 500 13px/1.2 var(--font); color: var(--ink-2); white-space: nowrap; cursor: pointer; }
+html[data-ui="v1"] .ws-seg > button::after { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
+html[data-ui="v1"] .ws-seg > button :is(span, b) { color: var(--ink-3); font-weight: 500; }
+html[data-ui="v1"] .ws-seg > button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; box-shadow: inset 0 0 0 1px var(--accent); }
+html[data-ui="v1"] .ws-seg > button[aria-pressed="true"] :is(span, b) { color: inherit; font-weight: 600; }
+@media (hover: hover) and (pointer: fine) { html[data-ui="v1"] .ws-seg > button:not([aria-pressed="true"]):hover { background: var(--surface-2); color: var(--ink); } }
+/* one count badge (a tab's or a button's number): quiet grey, 20px */
+html[data-ui="v1"] .ws-count { display: inline-block; min-width: 20px; height: 20px; padding: 0 6px; border: 0; border-radius: 999px; background: var(--surface-3); color: var(--ink-2);
+  font: 600 12px/20px var(--font); font-variant-numeric: tabular-nums; text-align: center; }
+/* pressed: every tap answers at once (no transition), whatever the control's own colours */
+html[data-ui="v1"] :is(button, summary, a[href], [role="tab"]):not(:disabled):not([aria-disabled="true"]):active { box-shadow: inset 0 0 0 999px rgba(15, 23, 42, .07); }
+html[data-ui="v1"] .ws-item.is-active { box-shadow: none; }   /* the open page: a tint (a coloured edge means «Хянуулах» only) */

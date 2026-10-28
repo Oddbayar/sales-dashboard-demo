@@ -25,8 +25,9 @@
   const ymDot = ym => ym.replace('-', '.');
   const monthLong = ym => `${+ym.slice(0, 4)} оны ${+ym.slice(5)}-р сар`;
   const wdOf = (ym, d) => new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5) - 1, d)).getUTCDay();
-  const dayLong = (ym, d) => `${+ym.slice(5)}-р сарын ${d} · ${WD[wdOf(ym, d)]}`;
-  const span = mo => `${mo.first}–${mo.through}`;
+  const dayLong = (ym, d) => `${ymDot(ym)}.${String(d).padStart(2, '0')} · ${WD[wdOf(ym, d)]}`;   // one date format: 2026.10.05
+  const d2 = d => String(d).padStart(2, '0');
+  const span = mo => `${ymDot(mo.ym)}.${d2(mo.first)}–${d2(mo.through)}`;   // a range: 2026.10.01–22
 
   let rep, months, byYm, metrics, newestFirst = true;
   // page: year-chart metric + chart/list view; drawer (S): its own metric/view, so switching inside it never changes the page
@@ -63,11 +64,12 @@
     metrics = FX.metrics;
     P.metric = S.metric = metrics[0].key;
 
-    $('rep-label').textContent = `Худалдааны төлөөлөгч · ${rep.code}`;
+    $('rep-label').textContent = `ХТ · ${rep.code}`;
     $('asof').textContent = `${FX.cutoff.replace(/-/g, '.')}-ны байдлаар`;
     $('plan-tag').textContent = FX.plan.label;
     $('plan-note').textContent = FX.plan.note_mn;
     renderCurrent();
+    $('m-sel').innerHTML = months.map(mo => `<option value="${mo.ym}">${ymDot(mo.ym)}${mo.current ? ' · явж буй' : ''}</option>`).join('');
     yScale = yearScale(months.filter(m => !m.current));   // shared by the chart and the list bars
     renderList();
     renderYear();
@@ -92,18 +94,19 @@
   // ---- one metric's facts, used by the current cards and the drawer summary
   function facts(m, mo, card) {
     const a = mo.actual[m.key], p = mo.plan[m.key], x = pctOf(a, p), done = x != null && a >= p;
-    const partial = mo.through != null && (mo.first > 1 || mo.through < mo.days_in_month);
-    const rows = [[partial ? `Гүйцэтгэл · ${span(mo)}` : 'Гүйцэтгэл', a == null ? 'Мэдээлэлгүй' : exact(a, m)]];
+    // a past month whose data covers only some days (coverage starts/ends inside it): the actual names its days, the plan is the month's
+    const part = !mo.current && mo.through != null && (mo.first > 1 || mo.through < mo.days_in_month);
+    const rows = [[part ? `Гүйцэтгэл · ${mo.first}–${mo.through}` : 'Гүйцэтгэл', a == null ? 'Мэдээлэлгүй' : exact(a, m)]];
     if (!validPlan(p)) rows.push(['Төлөвлөгөө', 'байхгүй']);
     else {
-      rows.push([!partial ? 'Төлөвлөгөө' : card ? `Сарын төлөвлөгөө · 1–${mo.days_in_month}` : 'Сарын төлөвлөгөө', exact(p, m)]);
+      rows.push([!part ? 'Төлөвлөгөө' : card ? `Сарын төлөвлөгөө · 1–${mo.days_in_month}` : 'Сарын төлөвлөгөө', exact(p, m)]);
       if (a != null) rows.push(a > p ? ['Давсан', `+${exact(a - p, m)}`] : ['Үлдсэн', exact(p - a, m)]);   // remaining = max(plan − actual, 0)
     }
     const okText = mo.current ? 'Одоогоор биелсэн' : 'Биелсэн';
     const note = a == null ? 'Мэдээлэлгүй' : x == null ? 'Төлөвлөгөө байхгүй' : null;
     const info = card && m.info_mn ? `<details class="rp-info rp-left"><summary aria-label="${esc(m.label)} гэж юу вэ"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg></summary><div class="rp-pop">${esc(m.info_mn)}</div></details>` : '';
     return `<article class="${card ? 'rp-mcard' : 'rp-dblk'}${done ? ' is-done' : ''}${!card && m.key === S.metric ? ' is-active' : ''}" data-k="${m.key}">
-      <div class="rp-mh"><h3>${esc(card ? m.title : m.label)}</h3>${info}</div>
+      <div class="rp-mh"><h3>${esc(m.label)}</h3>${info}</div>
       <div class="rp-mmain">
         <p class="rp-pct"><b class="num">${x == null ? '—' : pctText(x)}</b><span>${note ?? (done ? `<span class="rp-ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>${okText}</span>` : 'биелэлт')}</span></p>
         <dl class="rp-kv">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd class="num">${esc(v)}</dd></div>`).join('')}</dl>
@@ -115,7 +118,8 @@
   function renderCurrent() {
     const cur = months.find(m => m.current);
     if (!cur) return;
-    $('cur-h').textContent = `${monthLong(cur.ym)} · ${cur.through == null ? 'мэдээлэлгүй' : `${span(cur)}-ны гүйцэтгэл`}`;
+    $('cur-h').textContent = cur.through == null ? `${ymDot(cur.ym)} · мэдээлэлгүй` : span(cur);
+    $('cur-span').textContent = `Төлөвлөгөө бүтэн сарынх · ${ymDot(cur.ym)}.01–${cur.days_in_month}`;   // actual 1–22 vs the whole month's plan, said once
     $('cur-open').dataset.ym = cur.ym;
     $('cur-cards').innerHTML = metrics.map(m => facts(m, cur, true)).join('');
     $('cur').hidden = false;
@@ -193,6 +197,7 @@
     for (const mo of full) { const y = mo.ym.slice(0, 4); if (years.at(-1)?.y === y) years.at(-1).n++; else years.push({ y, n: 1 }); }
     $('y-years').innerHTML = years.map((g, k) => `<span style="grid-column:span ${g.n}"${k ? ' class="yr-start"' : ''}><b>${g.y}</b></span>`).join('');
     $('y-metric').innerHTML = metrics.map(x => `<button type="button" data-ymetric="${x.key}" aria-pressed="${x.key === P.metric}">${esc(x.label)}</button>`).join('');
+    fades();   // new year labels: whole or hidden at the current scroll
   }
 
   function setHistView(v) {
@@ -204,11 +209,21 @@
     $('h-view').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.hv === v)));
   }
 
-  // phone: edge fades show there are more months to scroll to
+  // phone: edge fades show there are more months to scroll to; a year label shows whole or not at all (never «…5»)
   function fades() {
-    const ys = $('y-scroll'), more = ys.scrollWidth - ys.clientWidth;
+    const ys = $('y-scroll'), more = ys.scrollWidth - ys.clientWidth, s = ys.getBoundingClientRect();
     $('yc').classList.toggle('fade-l', more > 2 && ys.scrollLeft > 2);
     $('yc').classList.toggle('fade-r', more > 2 && ys.scrollLeft < more - 2);
+    for (const b of $('y-years').querySelectorAll('b')) {
+      const r = b.parentElement.getBoundingClientRect();
+      b.style.visibility = Math.min(r.right, s.right) - Math.max(r.left, s.left) >= b.offsetWidth ? '' : 'hidden';
+    }
+    // a value or month label half out of view would read as another number («2.9» of 82.9): shown whole or not at all
+    const g = document.createRange();
+    for (const t of $('y-cols').querySelectorAll('.rp-cv, .rp-cm')) {
+      g.selectNodeContents(t); const r = g.getBoundingClientRect();
+      t.style.visibility = r.width && (r.left < s.left || r.right > s.right) ? 'hidden' : '';
+    }
   }
 
   // ---- drawer
@@ -240,13 +255,13 @@
   function renderDrawer() {
     const mo = byYm.get(S.ym), L = mo.days_in_month, i = months.indexOf(mo);
     S.day = clamp(S.day ?? defaultDay(mo), 1, L);   // a 31-day month's 31st becomes the 30th/28th/29th
-    $('dr-title').textContent = ymDot(mo.ym);
+    $('dr-title').textContent = monthLong(mo.ym);
     $('dr-sub').textContent = mo.current
-      ? `${monthLong(mo.ym)} · Явж буй сар · ${mo.through == null ? 'мэдээлэлгүй' : `${span(mo)}-ны гүйцэтгэл`} · ${L} хоног`
-      : `${monthLong(mo.ym)} · Бүтэн сар · ${L} хоног`;
+      ? `Явж буй сар · ${mo.through == null ? 'мэдээлэлгүй' : span(mo)} · төлөвлөгөө бүтэн сарынх (${L} хоног)`
+      : `Бүтэн сар · ${L} хоног`;
     const prev = months[i - 1], next = months[i + 1];
-    $('m-prev').disabled = !prev; $('m-prev-l').textContent = prev ? ymDot(prev.ym) : '';
-    $('m-next').disabled = !next; $('m-next-l').textContent = next ? ymDot(next.ym) : '';
+    $('m-sel').value = mo.ym;
+    $('m-prev').disabled = !prev; $('m-next').disabled = !next;
     $('m-prev').setAttribute('aria-label', prev ? `Өмнөх сар: ${ymDot(prev.ym)}` : 'Өмнөх сар байхгүй');
     $('m-next').setAttribute('aria-label', next ? `Дараагийн сар: ${ymDot(next.ym)}` : 'Дараагийн сар байхгүй');
     $('dsum').innerHTML = metrics.map(m => facts(m, mo, false)).join('');
@@ -276,7 +291,7 @@
     const m = metricOf(S.metric), L = mo.days_in_month, vals = mo.daily[m.key], cum = cumOf(vals), plan = mo.plan[m.key], hasPlan = validPlan(plan);
     const isCum = S.view === 'cum', series = isCum ? cum : vals;
     const ref = !hasPlan ? null : isCum ? d => (plan * d) / L : () => plan / L;   // even calendar-day spread of the monthly plan
-    const box = $('chart'), W = Math.max(280, box.clientWidth || 520), H = W < 480 || innerHeight < 700 ? 196 : 228;
+    const box = $('chart'), W = Math.max(280, box.clientWidth || 520), H = innerHeight < 560 ? 168 : W < 480 || innerHeight < 700 ? 196 : 228;
     const pad = { l: 46, r: 10, t: 22, b: 26 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b, slot = pw / L;
     geom = { pad, slot, L };
     const X = d => pad.l + (d - 0.5) * slot;
@@ -333,11 +348,13 @@
     const na = gaps.length ? '<span class="lg lg-na"><i></i>Мэдээлэлгүй</span>' : '';
     const planLg = ref ? `<span class="lg lg-plan"><i></i>${isCum ? 'Жигд жишиг' : 'Өдрийн жигд жишиг'}</span>` : '<span class="lg lg-none">Төлөвлөгөө байхгүй — зөвхөн гүйцэтгэл</span>';
     $('legend').innerHTML = isCum
-      ? `<span class="lg lg-act"><i></i>Гүйцэтгэл (хуримтлагдсан)</span>${planLg}${na}`
+      ? `<span class="lg lg-act"><i></i>Гүйцэтгэл</span>${planLg}${na}`
       : `<span class="lg lg-bar"><i></i>Өдрийн гүйцэтгэл</span>${vals.some(x => x != null && x < 0) ? '<span class="lg lg-neg"><i></i>Буцаалт давсан өдөр (хасах)</span>' : ''}${planLg}${na}`;
-    $('ref-note').textContent = !ref ? '' : isCum
+    const long = isCum
       ? `Жигд жишиг = сарын төлөвлөгөө × өдөр ÷ ${L}. Батлагдсан өдрийн зорилт, ажлын өдрийн төлөвлөгөө эсвэл сарын эцсийн прогноз биш.`
       : `Өдрийн жигд жишиг = сарын төлөвлөгөө ÷ ${L} календарийн өдөр. Батлагдсан өдрийн зорилт биш.`;
+    $('ref-note').innerHTML = !ref ? '' : `<span>${isCum ? 'Жигд жишиг' : 'Өдрийн жигд жишиг'}: календарийн өдрөөр жигд хуваасан жишиг</span>`
+      + `<details class="rp-info rp-left"><summary aria-label="Жигд жишгийг хэрхэн тооцсон"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg></summary><div class="rp-pop">${esc(long)}</div></details>`;
     $('ref-note').hidden = !ref;
   }
 
@@ -372,8 +389,23 @@
   const setDay = d => { const L = byYm.get(S.ym).days_in_month, n = clamp(d, 1, L); if (n !== S.day) { S.day = n; renderDay(); } };
 
   // ---- events
+  // an opened ⓘ note stays whole on screen, 12px from the edges (inside an open drawer: from the drawer's edges)
+  document.addEventListener('toggle', e => {
+    const d = e.target; if (!d.matches?.('details.rp-info') || !d.open) return;
+    const pop = d.querySelector('.rp-pop'); pop.style.transform = '';
+    const box = d.closest('.rp-sheet-b')?.getBoundingClientRect() || { left: 0, right: innerWidth };
+    const lo = Math.max(0, box.left) + 12, hi = Math.min(innerWidth, box.right) - 12, r = pop.getBoundingClientRect();
+    const dx = Math.max(r.right > hi ? hi - r.right : 0, lo - r.left);
+    if (dx) pop.style.transform = `translateX(${Math.round(dx)}px)`;
+  }, true);
+  // an open ⓘ note: a tap outside only closes it (never also opens a month or presses a control under it)
   document.addEventListener('click', e => {
-    document.querySelectorAll('details.rp-info[open]').forEach(x => { if (!x.contains(e.target)) x.open = false; });
+    const open = [...document.querySelectorAll('details.rp-info[open]')].filter(x => !x.contains(e.target));
+    if (!open.length) return;
+    open.forEach(x => { x.open = false; });
+    if (!e.target.closest('summary')) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  document.addEventListener('click', e => {
     const row = e.target.closest('.rp-row, .rp-col');   // one tap / click / Enter anywhere on a month opens it
     if (row) return openMonth(row.dataset.ym);
   });
@@ -393,12 +425,13 @@
     renderYear();
     if (f) document.querySelector(`#y-cols [data-ym="${f}"]`)?.focus({ preventScroll: true });
   }).observe($('y-axis'));
+  $('m-sel').addEventListener('change', e => { if (byYm.has(e.target.value)) openMonth(e.target.value); });
   for (const [id, k] of [['m-prev', -1], ['m-next', 1]]) {
     $(id).addEventListener('click', () => {
       const n = months[months.indexOf(byYm.get(S.ym)) + k];
       if (!n) return;
       openMonth(n.ym);
-      if ($(id).disabled) $(k < 0 ? 'm-next' : 'm-prev').focus();   // never leave focus on a disabled edge button
+      if ($(id).disabled) $('m-sel').focus();   // never leave focus on a disabled edge button
     });
   }
   for (const [id, k] of [['d-prev', -1], ['d-next', 1]]) {
@@ -423,6 +456,14 @@
   new ResizeObserver(() => { if (dr.open) renderChart(byYm.get(S.ym)); }).observe(chart);
 
   dr.querySelector('[data-close]').addEventListener('click', () => dr.close());
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const info = [...document.querySelectorAll('details.rp-info[open]')];
+    if (!info.length) return;
+    e.preventDefault(); e.stopPropagation();
+    info.forEach(x => { x.open = false; }); info[0].querySelector('summary').focus();
+  }, true);
+  dr.addEventListener('cancel', e => { if (document.querySelector('details.rp-info[open]')) e.preventDefault(); });
   dr.addEventListener('click', e => {
     if (e.target !== dr) return;
     const r = dr.getBoundingClientRect();

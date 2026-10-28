@@ -18,18 +18,19 @@
   var TEAM_REP = 'SR-D02', TEAM_NAME = 'С.Сараа';   // the task demo's default rep (ui/team-control/data/fixture.js)
   var DEP = window.WS_DEPLOY || {};   // package only: { route, release, v: { site path → sha256[:10] } }
   var MODULE = document.documentElement.getAttribute('data-ws-module') || '';
+  var V1 = document.documentElement.getAttribute('data-ui') === 'v1';   // visual language v1 (opt-in): demo tag + product mark in «Цэс»
   if (MODULE === 'route' && new URLSearchParams(location.search).get('demo') !== 'team') MODULE = 'legacy';   // SR-073's own route
   var MOD = {
     home: { path: 'rep-home/', label: 'Миний ажил' },
-    route: { path: 'rep-route/', label: 'Миний маршрут', sub: 'Даалгаврын демо', icon: 'route' },
-    team: { path: 'team-control/', label: 'Багийн хяналт', sub: 'Supervisor', icon: 'team' },
-    store: { path: 'store-report/', label: 'Дэлгүүрийн цонх', icon: 'store' },
-    performance: { path: 'rep-performance/', label: 'Миний гүйцэтгэл', sub: REP, icon: 'perf' },
+    route: { path: 'rep-route/', label: 'Миний маршрут', sub: 'ХТ · даалгаврын демо', icon: 'route' },
+    team: { path: 'team-control/', label: 'Багийн хяналт', sub: 'Ахлах', icon: 'team' },
+    store: { path: 'store-report/', label: 'Дэлгүүрийн цонх', sub: 'ХТ ба ахлах · кодоор', icon: 'store' },
+    performance: { path: 'rep-performance/', label: 'Миний гүйцэтгэл', sub: 'ХТ · ' + REP, icon: 'perf' },
     legacy: { path: 'rep-route/' }
   };
   var ORDER = ['route', 'team', 'store', 'performance'];
   // remembered module state: only the module's own keys with short plain values (the store report's return rule)
-  var KEEP = { route: ['rep', 'tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope', 't'],
+  var KEEP = { route: ['rep', 'tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope', 't', 'cf', 'lf'],
     legacy: ['tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope'] };
   var ICON = {
     home: '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
@@ -104,8 +105,11 @@
   function mount(slot, k) {
     var id = 'ws-pop-' + k;
     slot.classList.add('ws-slot');
-    slot.innerHTML = '<button type="button" class="ws-menu-btn" aria-expanded="false" aria-controls="' + id + '">' + svg('home') + '<span>Цэс</span></button>' +
-      '<nav class="ws-pop" id="' + id + '" aria-label="Миний ажил" hidden><a class="ws-home" data-m="home">' + svg('home') + '<span>Миний ажил</span></a>' +
+    slot.innerHTML = (V1 && MODULE !== 'home' ? '<span class="ws-demo"><span>Демо<span class="ws-demo-l"> · зохиомол өгөгдөл</span></span></span>' : '') +
+      '<button type="button" class="ws-menu-btn" aria-expanded="false" aria-controls="' + id + '">' + svg('home') + '<span>Цэс</span></button>' +
+      '<nav class="ws-pop" id="' + id + '" aria-label="Миний ажил" hidden>' +
+      (V1 ? '<div class="ws-brand"><span class="ws-mark" aria-hidden="true"></span><span><b>VERITAS ATLAS</b><small>Демо хувилбар · зохиомол өгөгдөл</small></span></div>' : '') +
+      '<a class="ws-home" data-m="home">' + svg('home') + '<span>Миний ажил</span></a>' +
       '<ul>' + ORDER.map(function (m) {
         return '<li><a class="ws-item" data-m="' + m + '">' + svg(MOD[m].icon) + '<span class="ws-t"><b>' + MOD[m].label + '</b>' +
           (m === MODULE ? '<small>Одоо нээлттэй</small>' : MOD[m].sub ? '<small class="ws-sub">' + MOD[m].sub + '</small>' : '') + '</span></a></li>';
@@ -130,6 +134,7 @@
     menus.push({ btn: btn, pop: pop });
   }
   function mountAll() { Array.prototype.forEach.call(document.querySelectorAll('[data-ws-menu]'), mount); }
+  if (V1) document.addEventListener('touchstart', function () {}, { passive: true });   // iOS WebKit shows :active (the pressed state) only with a touch listener
   document.addEventListener('pointerdown', function (e) {
     if (menus.some(function (m) { return !m.pop.hidden; }) && !(e.target.closest && e.target.closest('.ws-slot'))) { closeMenus(); syncBack(); }
   });

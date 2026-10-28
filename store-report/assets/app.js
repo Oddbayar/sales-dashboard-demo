@@ -27,7 +27,7 @@
   function dDot(iso) { return iso.replace(/-/g, '.'); }
   function ymAdd(ym, k) { var y = +ym.slice(0, 4), m = +ym.slice(5) + k; y += Math.floor((m - 1) / 12); m = ((m - 1) % 12 + 12) % 12 + 1; return y + '-' + (m < 10 ? '0' : '') + m; }
   function chartMonths(ym) { var a = []; for (var k = 11; k >= 0; k--) a.push(ymAdd(ym, -k)); return a; } // selected month + previous 11
-  function monthLabel(m) { return ymDot(m.ym) + (m.is_partial ? ' (1–' + Number(m.end.slice(8)) + ')' : ''); }
+  function monthLabel(m) { return ymDot(m.ym) + (m.is_partial ? '.01–' + m.end.slice(8) : ''); }   // a partial month is a range: 2026.10.01–22
   var WD = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
   function weekday(iso) { var p = iso.split('-'); return WD[new Date(+p[0], +p[1] - 1, +p[2]).getDay()]; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -225,7 +225,7 @@
 
   function nav(url, replace) { url += location.hash; if (replace) location.replace(url); else location.assign(url); }
   // «Миний маршрут» return state: only its own known keys with short plain values; the path is fixed (never an outside URL)
-  var ROUTE_KEYS = ['tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope', 'demo', 'rep', 't'];   // demo/rep/t: the team demo (Claude 31)
+  var ROUTE_KEYS = ['tab', 'day', 'rs', 'rq', 'f', 'rec', 'aimag', 'type', 'q', 'sort', 'scope', 'demo', 'rep', 't', 'cf', 'lf'];   // demo/rep/t: the team demo (Claude 31); cf/lf: its column filters (Claude 34)
   function routeQuery(raw) {
     var src = new URLSearchParams(raw || ''), out = new URLSearchParams();
     ROUTE_KEYS.forEach(function (k) { var v = src.get(k); if (v && v.length <= 60 && !/[<>:/\\]/.test(v)) out.set(k, v); });
@@ -276,20 +276,19 @@
     document.title = s.name + ' · Дэлгүүрийн тайлан';
     $('store-name').textContent = s.name; $('bar-name').textContent = s.name;
     $('store-code').textContent = s.code; $('bar-code').textContent = s.code;
-    $('store-sub').textContent = [s.aimag, lbl(s.sub_channel), 'Төлөөлөгч ' + s.rep_code].join(' · ');
-    $('asof').textContent = FX.cutoff.replace(/-/g, '.') + '-ны байдлаар';
-    var dl = [['Код', s.code], ['Аймаг', s.aimag], ['Суваг', lbl(s.sub_channel)], ['Харилцагчийн төрөл', lbl(s.sr_channel)],
-      ['Төлөв', lbl(s.segment)], ['Төлөөлөгч', s.rep_code]];
+    $('store-name').title = s.name;   // a long name is cut in the header; the whole name is in ⓘ (and the team drawer's head)
+    var dl = [['Нэр', s.name], ['Код', s.code], ['Аймаг', s.aimag], ['Суваг', lbl(s.sub_channel)], ['Харилцагчийн төрөл', lbl(s.sr_channel)],
+      ['Төлөв', lbl(s.segment)], ['Төлөөлөгч', s.rep_code], ['Өгөгдөл', 'Демо · ' + FX.cutoff.replace(/-/g, '.') + ' хүртэл (тайлангийн сар нь сонголтоор)']];
     $('store-dl').innerHTML = dl.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('');
     var progN = currentPrograms().length;
     $('prog-count').textContent = progN; $('prog-count').hidden = progN === 0;
     $('prog-btn').setAttribute('aria-label', 'Харилцагчийн хөтөлбөр, ' + progN + ' хөтөлбөр');
     var cov = asCoverage();
-    ['as-count', 'bar-as-count'].forEach(function (id) { $(id).textContent = cov.n ? asBadge(cov) : ''; $(id).hidden = cov.n === 0; });
+    ['as-count', 'bar-as-count'].forEach(function (id) { $(id).textContent = cov.n ? cov.have + '/' + cov.n : ''; $(id).hidden = cov.n === 0; });
     ['as-btn', 'bar-as'].forEach(function (id) {
       $(id).setAttribute('aria-label', 'Барааны карт' + (cov.n ? ', ' + cov.n + ' бараанаас ' + cov.have + ' авсан, ' + pct(cov.pct) : ''));
     });
-    var opts = FX.selectable_months.map(function (ym) { return '<option value="' + ym + '">' + monthLabel(byYm[ym]) + '</option>'; }).join('');
+    var opts = FX.selectable_months.map(function (ym) { return '<option value="' + ym + '">' + ymDot(ym) + '</option>'; }).join('');
     $('month').innerHTML = opts; $('month2').innerHTML = opts;
     $('cond-rows').innerHTML = FX.tiers.map(function (t, i) {
       var nx = FX.tiers[i + 1];
@@ -302,6 +301,8 @@
   function render() {
     var mo = byYm[state.month];
     $('month').value = state.month; $('month2').value = state.month;
+    var mi = FX.selectable_months.indexOf(state.month);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-mstep]'), function (b) { var j = mi + Number(b.dataset.mstep); b.disabled = j < 0 || j >= FX.selectable_months.length; });
     var cats = groupFor(state.month, 'category'), brands = groupFor(state.month, 'brand');
     state.inspect = null;
     renderAmount(mo, cats, brands);
@@ -341,7 +342,7 @@
   function renderTier(mo) {
     var a = mo.amount, i = tierFor(a), gap = nextGap(a);
     var badge = $('tier-badge');
-    badge.textContent = FX.tiers[i].name + ' · ' + rateText(i);
+    badge.textContent = shortTier(i); badge.title = FX.tiers[i].name + ' · ' + rateText(i);   // «I · 1%»: the title stays whole on one line
     badge.classList.toggle('base', i === 0);
     var anchor = $('anchor');
     anchor.classList.toggle('top', gap === null);
@@ -363,12 +364,12 @@
       return '<li class="' + cls + '"' + (k === i ? ' aria-current="step"' : '') + '><span class="seg">' + seg + '</span><span class="t-name">' +
         esc(shortTier(k)) + '</span><span class="t-min num">' + min + '</span></li>';
     }).join('');
-    $('bonus-lbl').textContent = mo.is_partial ? 'Одоогоор тооцсон урамшуулал' : 'Тооцсон урамшуулал';
+    $('bonus-lbl').textContent = mo.is_partial ? 'Одоогийн урамшуулал' : 'Тооцсон урамшуулал';
     $('bonus').textContent = money(bonusFor(a));
     $('next-bonus').hidden = gap === null;
     if (gap !== null) {
       var nt = FX.tiers[i + 1];
-      $('next-bonus-lbl').textContent = nt.name + 'д хүрвэл (' + (nt.min / 1e6) + ' сая × ' + rateText(i + 1) + ')';
+      $('next-bonus-lbl').textContent = nt.name + 'д хүрвэл нийт';   // the whole bonus at that tier, not the increment (the formula: «Нөхцөл»)
       $('next-bonus-v').textContent = money(bonusFor(nt.min));
     }
     Array.prototype.forEach.call($('cond-rows').rows, function (tr) {
@@ -399,7 +400,7 @@
     $('avg-months').textContent = ymDot(b[0]) + '–' + ymDot(b[b.length - 1]) + ', ' + b.length + ' бүтэн сар';
     var part = yms.map(function (y) { return byYm[y]; }).filter(function (m) { return m.is_partial; })[0];
     $('leg-part').hidden = !part;
-    if (part) $('leg-part-t').textContent = partText(part) + ': ' + md(part.start) + '–' + md(part.end) + ', дутуу сар';
+    if (part) $('leg-part-t').textContent = md(part.start) + '–' + md(part.end) + ' дутуу сар';
     var vals = yms.map(function (y) { return M.value(byYm[y]); });
     var max = Math.max.apply(null, vals.map(function (v) { return Math.max(0, v || 0); }).concat([M.avg(av) || 0, 1e-9])); // the average always fits
     $('cols').innerHTML = yms.map(function (y, k) {
@@ -439,8 +440,7 @@
     });
     $('inspect').classList.toggle('other', other);
     var SEP = ' · ';
-    $('readout').innerHTML = '<span class="r1"><span class="tag">' + (other ? 'Харж буй сар' : 'Тайлангийн сар') + '</span><b>' + ymDot(ym) + '</b>' +
-        (m.is_partial ? ' (' + partText(m) + ')' : '') + SEP + '<b class="v">' + (v == null ? 'мэдээ алга' : M.fmt(v)) + '</b>' + SEP + esc(FX.tiers[i].name) + ' (' + rateText(i) + ')</span>' +
+    $('readout').innerHTML = '<span class="r1"><span class="tag">' + (other ? 'Харж буй сар' : 'Тайлангийн сар') + '</span><b>' + monthLabel(m) + '</b>' + SEP + '<b class="v">' + (v == null ? 'мэдээ алга' : M.fmt(v)) + '</b>' + SEP + esc(FX.tiers[i].name) + ' (' + rateText(i) + ')</span>' +
       '<span class="r2">' + (plan == null
         ? 'Мөнгөн дүн ' + money(m.amount) + ' · <span class="no-plan">Төлөвлөгөө байхгүй</span>'
         : 'Мөнгөн гүйцэтгэл / төлөвлөгөө: ' + fmt(m.amount) + ' / ' + money(plan) + ' · <b>' + pct(m.amount / plan * 100) + '</b>' +
@@ -490,7 +490,8 @@
       '<tr><th scope="row">Сарын нийт · ' + all.length + ' бараа</th><td></td><td class="r num strong" id="sum-amount">' + money(sum(all, function (p) { return p.amount; })) + '</td><td class="col-last"></td><td></td></tr>';
     var empty = $('empty-products');
     empty.hidden = rows.length > 0;
-    empty.textContent = all.length === 0 ? 'Энэ сард авалт бүртгэгдээгүй.' : '«' + state.q.trim() + '» гэсэн бараа олдсонгүй.';
+    // a search with no match says so and offers the one action that undoes it
+    empty.innerHTML = all.length === 0 ? 'Энэ сард авалт бүртгэгдээгүй.' : '<span>«' + esc(state.q.trim()) + '» гэсэн бараа олдсонгүй.</span><button type="button" class="btn-sec" data-q-clear>Хайлтыг цэвэрлэх</button>';
     $('tbl-products').hidden = rows.length === 0;
     $('shown-products').textContent = searching ? rows.length + ' бараа олдлоо' : shown.length + ' / ' + all.length + ' бараа';
     var tg = $('toggle-all');
@@ -627,7 +628,7 @@
           '<div class="as-top"><p class="as-sum num" id="as-sum"><span><b>' + cov.n + '</b> бараа · Авсан <b>' + cov.have + '</b> · Аваагүй <b>' + cov.need + '</b></span>' +
             '<b class="as-pct">' + pct(cov.pct) + '</b></p>' +
             '<div class="as-bar" role="progressbar" aria-label="Сетийн хамралт" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + cov.pct.toFixed(1) + '"><i style="width:' + cov.pct.toFixed(2) + '%"></i></div></div>' +
-          '<div class="as-tools"><div class="seg" role="group" aria-label="Шүүлт (сетийн нийт тоо)">' + seg('all', 'Бүгд', cov.n) + seg('need', 'Аваагүй', cov.need) + seg('have', 'Авсан', cov.have) + '</div>' +
+          '<div class="as-tools"><div class="seg ws-seg" role="group" aria-label="Шүүлт (сетийн нийт тоо)">' + seg('all', 'Бүгд', cov.n) + seg('need', 'Аваагүй', cov.need) + seg('have', 'Авсан', cov.have) + '</div>' +
             '<label class="search sm"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="as-q" placeholder="Нэр, код" aria-label="Сетээс нэр, кодоор хайх" autocomplete="off" value="' + esc(v.q || '') + '"></label></div>' +
           '<div id="as-results">' + asResults(v) + '</div>' +
           '<p class="as-note">Сүүлийн 30 хоногт дор хаяж ' + A.profile.min_units + ' ш татсан эсэх. Үлдэгдэл, тавиур, захиалгын тоо биш.</p>'
@@ -686,7 +687,7 @@
               '<span class="as-name">' + esc(nameInBrand(i.code)) + '</span><span class="as-q num">' + fmt(i.q30) + ' ш</span>' + statusPill(i) +
               '<span class="as-sub num">' + esc(asSub(i)) + '</span></button></li>';
           }).join('') + '</ul></section>';
-      }).join('') : '<p class="empty">Тохирох бараа алга.</p>');
+      }).join('') : '<p class="empty"><span>Тохирох бараа алга.</span><button type="button" class="btn-sec" data-as-reset>Хайлт, шүүлтийг цэвэрлэх</button></p>');
   }
 
   // brand and category drawers: same structure — summary → 12-month chart → related list.
@@ -851,7 +852,11 @@
   function bind() {
     $('month').addEventListener('change', function (e) { setMonth(e.target.value); });
     $('month2').addEventListener('change', function (e) { setMonth(e.target.value); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-mstep]'), function (b) {
+      b.addEventListener('click', function () { var m = FX.selectable_months[FX.selectable_months.indexOf(state.month) + Number(b.dataset.mstep)]; if (m) setMonth(m); });
+    });
     $('q').addEventListener('input', function (e) { state.q = e.target.value; renderProducts(); });
+    $('empty-products').addEventListener('click', function (e) { if (!e.target.closest('[data-q-clear]')) return; state.q = ''; $('q').value = ''; renderProducts(); $('q').focus(); });
     $('sort').addEventListener('change', function (e) { state.sort = e.target.value; renderProducts(); });
     $('toggle-all').addEventListener('click', function () { state.showAll = !state.showAll; renderProducts(); });
     TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { selectTab(t); }); });
@@ -865,6 +870,17 @@
       b.addEventListener('click', function () { goSection(b.getAttribute('data-go')); });
     });
     $('to-top').addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }); $('month').focus({ preventScroll: true }); });
+    // ⋯: one small menu at a time; an item, a tap outside or Esc closes it
+    var menus = Array.prototype.slice.call(document.querySelectorAll('.more-w')).filter(function (m) { var empty = !m.querySelector('.more-pop').children.length; m.hidden = empty; return !empty; });
+    var shut = function (except) { menus.forEach(function (m) { if (m === except) return; m.querySelector('.more-pop').hidden = true; m.querySelector('.more-btn').setAttribute('aria-expanded', 'false'); }); };
+    menus.forEach(function (m) {
+      var b = m.querySelector('.more-btn'), pop = m.querySelector('.more-pop');
+      b.addEventListener('click', function () { var open = pop.hidden; shut(m); pop.hidden = !open; b.setAttribute('aria-expanded', String(open)); if (open) { var f = pop.querySelector('button:not([hidden]), a'); if (f) f.focus(); } });
+      pop.addEventListener('click', function (e) { if (e.target.closest('.more-item')) shut(); });
+    });
+    document.addEventListener('click', function (e) { if (!e.target.closest('.more-w')) shut(); });
+    document.addEventListener('keydown', function (e) { var m = menus.filter(function (x) { return !x.querySelector('.more-pop').hidden; })[0]; if (e.key === 'Escape' && m) { shut(); m.querySelector('.more-btn').focus(); } });
+    $('bar-pop').querySelector('[data-top]').addEventListener('click', function () { $('to-top').click(); });
     $('more-btn').addEventListener('click', function () {
       var open = this.getAttribute('aria-expanded') !== 'true';
       this.setAttribute('aria-expanded', String(open));
@@ -901,6 +917,12 @@
         var bars = Array.prototype.slice.call(step.closest('.dr-chart').querySelectorAll('.mc'));
         var at = bars.indexOf(bars.filter(function (x) { return x.classList.contains('is-insp'); })[0] || bars.filter(function (x) { return x.classList.contains('sel'); })[0]);
         miniPick(bars[Math.max(0, Math.min(bars.length - 1, at + Number(step.dataset.step)))]);
+        return;
+      }
+      if (e.target.closest('[data-as-reset]')) {   // the card's empty result: back to every item
+        current().filter = 'all'; current().q = ''; $('as-q').value = '';
+        Array.prototype.forEach.call(body.querySelectorAll('[data-filter]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')); });
+        $('as-results').innerHTML = asResults(current()); $('as-q').focus();
         return;
       }
       var seg = e.target.closest('[data-filter]');
@@ -955,6 +977,12 @@
     openEntity: function (type, key) { openDrawer({ type: type, key: key }, null); },
     openAssortment: function () { openDrawer({ type: 'assortment', filter: 'all', q: '' }, $('as-btn')); },
     openPrograms: function () { openDrawer({ type: 'programs' }, $('prog-btn')); },
+    // Claude 40: the store window's «Даалгавар» (team-control/assets/store-panel.js) is views of this same drawer
+    view: function (type, fn, back) { VIEWS[type] = fn; if (back) BACK[type] = back; },
+    open: function (view, from) { openDrawer(view, from); },
+    push: function (view, from) { pushView(view, from); },
+    refresh: function () { if ($('dr').open) renderDrawer(true); },
+    current: function () { return $('dr').open ? current() : null; },
     snapshot: function () { return { month: state.month, tab: state.tab, q: state.q, inspect: state.inspect, metric: state.metric, url: location.search, fromLookup: state.fromLookup, ret: state.ret, tg: !!(window.WS && window.WS.isTelegram()),
       drawer: drawer.stack.map(function (v) { return v.type + ':' + (v.key || v.filter || '') + (v.cat ? '@' + v.cat : ''); }) }; },
   };

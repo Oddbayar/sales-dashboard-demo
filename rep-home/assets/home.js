@@ -8,7 +8,7 @@
   if (!WS) return;   // the shared script failed: the plain relative links still work
   var raw = (new URLSearchParams(location.search).get('rep') || '').trim(), code = raw ? raw.toUpperCase() : WS.rep;
   if (code !== WS.rep) {
-    $('links').hidden = true; $('foot').hidden = true;
+    $('links').hidden = true; $('foot').hidden = true; $('scen').hidden = true;
     $('rep-label').textContent = 'Демо ажлын цэс';
     $('state-title').textContent = 'Мэдээлэл олдсонгүй';
     $('state-text').textContent = '«' + (raw.length > 24 ? raw.slice(0, 24) + '…' : raw) + '» кодтой худалдааны төлөөлөгчийн ажлын цэс энэ демод байхгүй. Демо зөвхөн ' + WS.rep + ' кодтой.';
@@ -16,7 +16,12 @@
     $('state-link').textContent = WS.rep + '-ийн демо цэс';
     $('state').hidden = false;
   }
-  var links = function () { Array.prototype.forEach.call(document.querySelectorAll('#app a[data-m]'), function (a) { a.href = WS.href(a.getAttribute('data-m')); }); };
+  var links = function () {
+    Array.prototype.forEach.call(document.querySelectorAll('#app a[data-m]'), function (a) { a.href = WS.href(a.getAttribute('data-m')); });
+    // «Миний маршрут» reopens the demo rep picked last this session: the card names that rep's code, not С.Сараа's
+    var rep = new URL(WS.href('route')).searchParams.get('rep');
+    $('route-who').textContent = rep === WS.teamRep ? 'ХТ · ' + WS.teamName + ' · ' + rep : 'ХТ · демо ХТ ' + rep + ' (сүүлд сонгосон)';
+  };
   links();
   window.addEventListener('pageshow', links);   // back from a module (bfcache): pick up the newest session state
   var rel = WS.deploy.release;

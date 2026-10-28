@@ -306,7 +306,9 @@ window.TeamCore = (() => {
     for (const t of by.values()) t.list.sort((x, y) => PRIO(x) - PRIO(y) || ms(S.tasks.get(x.task).created_at) - ms(S.tasks.get(y.task).created_at) || x.id.localeCompare(y.id));
     return by;
   }
-  const badge = s => `<span class="tc-st s-${s}">${icon(STATUS[s].i)}${STATUS[s].t}</span>`;
+  // the rep's own words for the same states («Хариу өгөх», «Хянуулж байгаа»); the supervisor keeps Хийх / Хянуулах (values unchanged)
+  const REP_T = { todo: 'Хариу өгөх', review: 'Хянуулж байгаа' };
+  const badge = (s, rep) => `<span class="tc-st s-${s}">${icon(STATUS[s].i)}${(rep && REP_T[s]) || STATUS[s].t}</span>`;
 
   // ---------- the task form's rules (the same for the team form and the store window's form) ----------
   const today = () => isoOf(new Date());
@@ -335,33 +337,24 @@ window.TeamCore = (() => {
   function historyHtml(a) {
     const old = a.legacy ? `<li class="tc-hist-old">Өмнөх үйл явдлын огноо хуучин бүртгэлд хадгалагдаагүй (төлөв нь хадгалагдсан).</li>` : '';
     return `<div class="tc-hist"><p class="tc-k">Хяналтын түүх</p><ol>${old}`
-      + a.history.map(e => `<li><span class="num">${when(e.at)}</span><span class="tc-who">${e.by === 'rep' ? 'ХТ' : 'Supervisor'}</span><span>${evText(e)}</span></li>`).join('') + `</ol></div>`;
+      + a.history.map(e => `<li><span class="num">${when(e.at)}</span><span class="tc-who">${e.by === 'rep' ? 'ХТ' : 'Ахлах'}</span><span>${evText(e)}</span></li>`).join('') + `</ol></div>`;
   }
   const replyBlock = (r, who) => `<div class="tc-reply"><p class="tc-k">${who} · <span class="num">${when(r.at)}</span></p>`
     + `<p><span class="tc-res r-${r.result}">${icon(r.result === 'done' ? 'check' : 'x')}${RESULT[r.result]}</span></p>`
     + (r.text ? `<p class="tc-reply-text">${esc(r.text)}</p>` : '') + (r.reason ? `<p class="tc-reason"><b>Шалтгаан:</b> ${esc(r.reason)}</p>` : '') + `</div>`;
-  const decisionNote = (a, d) => `<div class="tc-note s-${a.status}">${icon(STATUS[a.status].i)}<div><p class="tc-k">Supervisor-ийн шийдвэр · ${when(d.at)}</p><p><b>${STATUS[a.status].t}</b>${d.comment ? ' — ' + esc(d.comment) : ''}</p></div></div>`;
+  const decisionNote = (a, d) => `<div class="tc-note s-${a.status}">${icon(STATUS[a.status].i)}<div><p class="tc-k">Ахлахын шийдвэр · ${when(d.at)}</p><p><b>${STATUS[a.status].t}</b>${d.comment ? ' — ' + esc(d.comment) : ''}</p></div></div>`;
   // opts.customer: extra html after the customer name (the team page's «Харилцагчийг харах»).
   // opts.rep: the rep's own view (repDetail below): the reply form instead of the review box, never a decision.
   function detail(a, opts = {}) {
     if (opts.rep) return repDetail(a, opts);
+    if (opts.tab) return tabDetail(a, opts);
     const t = S.tasks.get(a.task), c = custBy.get(a.customer), r = currentReply(a), d = lastDecision(a), acts = actionsFor(a);
     let side = '';
     if (a.status === 'todo' && d?.kind === 'rework') side += `<div class="tc-note back">${icon('undo')}<div><p class="tc-k">Буцаасан · ${when(d.at)}</p><p>${esc(d.comment || '')}</p></div></div>`;
     if (r) side += replyBlock(r, 'ХТ-ийн хариу');
     else if (a.status === 'todo') side += `<p class="tc-muted">${d?.kind === 'rework' ? 'Шинэ хариу ирээгүй.' : 'ХТ-ээс хариу ирээгүй.'}</p>`;
     else side += `<p class="tc-muted">Хуучин бүртгэл: ХТ-ийн хариуны текст, огноо хадгалагдаагүй.</p>`;
-    if (acts.length) {
-      const req = acts.filter(k => ACT[k].needs).map(k => `«${ACT[k].t}»`).join(', ');
-      const e = errs.get(a.id) || '';
-      side += `<div class="tc-review"><label for="cm-${esc(a.id)}">Supervisor-ийн тайлбар <span class="tc-opt">· ${req}-д заавал</span></label>`
-        + `<textarea id="cm-${esc(a.id)}" data-aid="${esc(a.id)}" rows="2" maxlength="300" aria-describedby="ce-${esc(a.id)}"${e ? ' aria-invalid="true"' : ''}>${esc(drafts.get(a.id) || '')}</textarea>`
-        + `<p class="tc-err" id="ce-${esc(a.id)}">${esc(e)}</p>`
-        + `<div class="tc-actions">${acts.map(k => `<button type="button" class="tc-btn${k === 'confirm' ? ' tc-primary' : ''}" data-act="${k}" data-aid="${esc(a.id)}" data-rev="${a.rev}">${icon(ACT[k].i)}${ACT[k].t}</button>`).join('')}</div>`
-        + `<p class="tc-help">ХТ хариулсан нь биелсэн гэсэн үг биш — хариуг шалгаад шийднэ.</p></div>`;
-    } else if (a.status === 'done' || a.status === 'failed') {
-      side += d ? decisionNote(a, d) : `<p class="tc-muted">Хуучин бүртгэл: шийдвэрийн огноо, тайлбар хадгалагдаагүй.</p>`;
-    }
+    side += reviewBox(a, acts, d);
     const n = notices.get(a.id);
     return (n ? `<p class="tc-conflict" role="alert">${esc(n)}</p>` : '')
       + `<div class="tc-adet-grid"><div class="tc-adet-task"><p class="tc-k">Даалгавар</p><p class="tc-adet-title">${esc(t.title)}</p><p class="tc-adet-text">${esc(t.text)}</p>`
@@ -369,15 +362,56 @@ window.TeamCore = (() => {
       + `<div><dt>Харилцагч</dt><dd>${esc(c.name)} <span class="num tc-code">${esc(c.code)}</span>${opts.customer || ''}</dd></div><div><dt>ХТ</dt><dd>${esc(repName(a.rep))}</dd></div></dl></div>`
       + `<div class="tc-adet-side">${side}</div></div>` + historyHtml(a);
   }
+  // «Багийн хяналт → Даалгавар» only (opts.tab): the full task text → the rep's latest reply → the supervisor's comment and decision.
+  // Title, customer and rep are on the row and its section, so they are not repeated; given · due · «Харилцагчийг харах» share one
+  // line; the history folds into «Түүх · N» (opts.histOpen). The same review box, rules, drafts and conflict notices as everywhere.
+  // Desktop: «Өгсөн даалгавар» | «ХТ-ийн сүүлийн хариу» side by side, «Ахлахын шийдвэр» full width under both; one column
+  // on a tablet (CSS). Three boxes of one style, no box inside a box.
+  function tabDetail(a, opts) {
+    const t = S.tasks.get(a.task), r = currentReply(a), d = lastDecision(a), n = notices.get(a.id), acts = actionsFor(a);
+    const box = (cls, h, body) => `<section class="tc-dbox ${cls}"><h4 class="tc-k">${h}</h4>${body}</section>`;
+    const task = `<p class="tc-adet-text">${esc(t.text)}</p><p class="tc-dmeta num"><span>Өгсөн ${when(t.created_at)}</span><span>Дуусгах хугацаа ${dot(t.due)}</span></p>${opts.customer || ''}`;
+    const reply = r
+      ? `<p class="tc-dmeta num"><span class="tc-res r-${r.result}">${icon(r.result === 'done' ? 'check' : 'x')}${RESULT[r.result]}</span><span>${when(r.at)}</span></p>`
+        + (r.text ? `<p class="tc-reply-text">${esc(r.text)}</p>` : '') + (r.reason ? `<p class="tc-reason"><b>Биелүүлээгүй шалтгаан:</b> ${esc(r.reason)}</p>` : '')
+      : `<p class="tc-muted">${a.status === 'todo' ? (d?.kind === 'rework' ? 'Буцаасны дараа шинэ хариу ирээгүй.' : 'ХТ-ээс хариу ирээгүй.') : 'Хуучин бүртгэл: ХТ-ийн хариуны агуулга, огноо хадгалагдаагүй.'}</p>`;
+    let dec;
+    if (acts.length) dec = reviewBox(a, acts, d, 'Тайлбар');
+    else if (a.status === 'done' || a.status === 'failed') {   // the final decision, compact: status · date, then the comment
+      dec = `<p class="tc-dmeta num">${badge(a.status)}<span>${d ? when(d.at) : 'Хуучин бүртгэл: шийдвэрийн огноо, тайлбар хадгалагдаагүй.'}</span></p>` + (d?.comment ? `<p class="tc-dcomment">${esc(d.comment)}</p>` : '');
+    } else {   // todo: waiting for the rep (a send-back shows its date and comment)
+      dec = d?.kind === 'rework' ? `<p class="tc-dmeta num"><span class="tc-rp back">${icon('undo')}Буцаасан</span><span>${when(d.at)}</span></p>${d.comment ? `<p class="tc-dcomment">${esc(d.comment)}</p>` : ''}` : '';
+      dec += `<p class="tc-muted">ХТ-ийн хариуг хүлээж байна; хариу ирэхэд энд шийднэ.</p>`;
+    }
+    return (n ? `<p class="tc-conflict" role="alert">${esc(n)}</p>` : '')
+      + `<div class="tc-tabdet">${box('tc-dtask', 'Өгсөн даалгавар', task)}${box('tc-dreply', 'ХТ-ийн сүүлийн хариу', reply)}${box('tc-ddec', 'Ахлахын шийдвэр', dec)}</div>`
+      + `<details class="tc-hist-d" data-hist="${esc(a.id)}"${opts.histOpen ? ' open' : ''}><summary>Түүх · <span class="num">${a.history.length}</span></summary>${historyHtml(a)}</details>`;
+  }
+  // the supervisor's part: the comment + the allowed decisions (review), or the decision made (done/failed)
+  function reviewBox(a, acts, d, label = 'Ахлахын тайлбар') {
+    let side = '';
+    if (acts.length) {
+      const req = acts.filter(k => ACT[k].needs).map(k => `«${ACT[k].t}»`).join(', ');
+      const e = errs.get(a.id) || '';
+      side += `<div class="tc-review"><label for="cm-${esc(a.id)}">${label} <span class="tc-opt">· ${req}-д заавал</span></label>`
+        + `<textarea id="cm-${esc(a.id)}" data-aid="${esc(a.id)}" rows="2" maxlength="300" aria-describedby="ce-${esc(a.id)}"${e ? ' aria-invalid="true"' : ''}>${esc(drafts.get(a.id) || '')}</textarea>`
+        + `<p class="tc-err" id="ce-${esc(a.id)}">${esc(e)}</p>`
+        + `<div class="tc-actions">${acts.map(k => `<button type="button" class="tc-btn${k === 'confirm' ? ' tc-primary' : ''}" data-act="${k}" data-aid="${esc(a.id)}" data-rev="${a.rev}">${icon(ACT[k].i)}${ACT[k].t}</button>`).join('')}</div>`
+        + `<p class="tc-help">ХТ хариулсан нь биелсэн гэсэн үг биш — хариуг шалгаад шийднэ.</p></div>`;
+    } else if (a.status === 'done' || a.status === 'failed') {
+      side += d ? decisionNote(a, d) : `<p class="tc-muted">Хуучин бүртгэл: шийдвэрийн огноо, тайлбар хадгалагдаагүй.</p>`;
+    }
+    return side;
+  }
   // the rep's view (Claude 32): the task text → the supervisor's latest send-back note → the reply (the form, the sent state or
   // the decision). Given date, customer, rep and the whole history fold into «Дэлгэрэнгүй ба түүх». The title is the row above.
   function repDetail(a, opts) {
     const t = S.tasks.get(a.task), c = custBy.get(a.customer), r = currentReply(a), d = lastDecision(a), n = notices.get(a.id);
     let h = (n ? `<p class="tc-conflict" role="alert">${esc(n)}</p>` : '') + `<p class="tc-adet-text tc-rtext">${esc(t.text)}</p>`;
-    if (returned(a)) h += `<div class="tc-note back tc-back">${icon('undo')}<div><p class="tc-k">Буцаасан · ${when(d.at)} · Supervisor-ийн тайлбар</p><p class="tc-back-c">${esc(d.comment || '')}</p></div></div>`;
+    if (returned(a)) h += `<div class="tc-note back tc-back">${icon('undo')}<div><p class="tc-k">Буцаасан · ${when(d.at)} · Ахлахын тайлбар</p><p class="tc-back-c">${esc(d.comment || '')}</p></div></div>`;
     if (a.status === 'todo') h += replyForm(a, opts.rep);
     else {
-      if (a.status === 'review') h += `<div class="tc-note sent">${icon('review')}<div><p class="tc-sent">Хариу илгээгдсэн · Supervisor хянаж байна</p><p class="tc-help">Шийдвэр гартал дахин илгээх боломжгүй; илгээсэн нь баталгаажсан гэсэн үг биш.</p></div></div>`;
+      if (a.status === 'review') h += `<div class="tc-note sent">${icon('review')}<div><p class="tc-sent">Хариу илгээгдсэн · Ахлах хянаж байна</p><p class="tc-help">Шийдвэр гартал дахин илгээх боломжгүй; илгээсэн нь баталгаажсан гэсэн үг биш.</p></div></div>`;
       else h += d ? decisionNote(a, d) : `<p class="tc-muted">Хуучин бүртгэл: шийдвэрийн огноо, тайлбар хадгалагдаагүй.</p>`;
       h += r ? replyBlock(r, 'Таны хариу') : `<p class="tc-muted">Хуучин бүртгэл: хариуны текст, огноо хадгалагдаагүй.</p>`;
     }
@@ -435,7 +469,7 @@ window.TeamCore = (() => {
       + `<textarea id="rtx-${id}" name="text" rows="3" maxlength="600" aria-describedby="rte-${id}"${e.text ? ' aria-invalid="true"' : ''}>${esc(v.text || '')}</textarea>`
       + `<p class="tc-err" id="rte-${id}">${esc(e.text || '')}</p></div>`
       + `<div class="tc-ract"><button type="submit" class="tc-btn tc-primary" data-send>${icon('reply')}<span>Хянуулахаар илгээх</span></button>`
-      + `<p class="tc-help">Supervisor хянаж шийднэ.</p></div></form>`;
+      + `<p class="tc-help">Ахлах хянаж шийднэ.</p></div></form>`;
   }
   const replyValues = f => ({ result: RESULT[f.elements.result.value] ? f.elements.result.value : '', text: f.elements.text.value });
   // typing / choosing in a reply form (delegated): keep the draft for this rep + assignment, relabel the text, clear its error
@@ -474,7 +508,7 @@ window.TeamCore = (() => {
     const a = S.asg.get(aid), title = a ? S.tasks.get(a.task).title : aid;
     if (r.ok) {
       replyDrafts.delete(replyKey(rep, aid)); replyErrs.delete(aid); notices.delete(aid);
-      return { ok: true, a, text: `«${title}»: хариу илгээгдлээ · Supervisor хянаж байна`, warn: false };
+      return { ok: true, a, text: `«${title}»: хариу илгээгдлээ · Ахлах хянаж байна`, warn: false };
     }
     // another rep's / customer's work: not even its title is shown
     if (r.conflict === 'owner') return { ok: false, a: null, text: 'Энэ ажил энэ ХТ, энэ харилцагчийнх биш тул хариу хадгалаагүй.', warn: true };

@@ -59,7 +59,20 @@
   var RSORTS = ['', 'visit_old', 'visit_new'];
   // t (team demo only): '' | 'task' = has active work (Хийх + Хянуулах) | 'reply' = has work to reply to (Хийх). Team default chip: Бүгд.
   var TFILTER = { task: 'Даалгавартай', reply: 'Хариу өгөх' };
-  var state = { tab: 'route', day: '', rs: '', rq: '', f: TEAM ? 'all' : 'attention', rec: 'all', aimag: '', type: '', q: '', sort: '', scope: '', t: '' };
+  // team demo (Claude 34): the column headers sort — the first tap = the first listed direction, the next tap flips it ('' = 12 сар ↓) —
+  // and two columns filter (funnel → one small popover). Буурсан / Авч байгаагүй = the existing flags; Суурьгүй = the row's own «Суурьгүй».
+  var COLS = [
+    { k: 'name', l: 'Харилцагч', s: [['name', 'ascending', 'А→Я'], ['name_desc', 'descending', 'Я→А']] },
+    // Сарын дундаж = 12 бүтэн сарын дүн ÷ 12 (the drawer's own average): its order is the 12-month sum's order, so it sorts by t12
+    { k: 'avg', l: 'Сарын дундаж', s: [['t12', 'descending', 'их→бага'], ['t12_asc', 'ascending', 'бага→их']] },
+    { k: 'cur', l: 'Энэ сарын авалт', s: [['cur', 'descending', 'их→бага'], ['cur_asc', 'ascending', 'бага→их']] },
+    { k: 'last', l: 'Сүүлийн авалт', s: [['last_new', 'descending', 'шинэ→хуучин'], ['last_old', 'ascending', 'хуучин→шинэ']], f: 'lf' }
+  ];
+  var HSORT = {}; COLS.forEach(function (col) { col.s.forEach(function (s) { HSORT[s[0]] = col; }); });   // an old change sort (pct_*) → the default
+  var COLF = { lf: { l: 'Сүүлийн авалт', o: { d30: '30+ хоног аваагүй', never: 'Авч байгаагүй' } } };
+  function inCol(c, k, v) { return !v || (v === 'd30' ? !!c.last && c.gap >= 30 : has(c, 'never')); }
+  var curOf = function (c) { return typeof c.cur === 'number' ? money(c.cur) : '—'; };   // this month to the cutoff, as in the drawer
+  var state = { tab: 'route', day: '', rs: '', rq: '', f: TEAM ? 'all' : 'attention', rec: 'all', aimag: '', type: '', q: '', sort: '', scope: '', t: '', lf: '' };
   var scrollY = { route: 0, customers: 0 };
 
   function readUrl() {
@@ -73,9 +86,10 @@
     if ((v = p.get('aimag')) && FX.customers.some(function (c) { return c.aimag === v; })) state.aimag = v;
     if ((v = p.get('type')) && FX.customers.some(function (c) { return c.type === v; })) state.type = v;
     if ((v = p.get('q'))) state.q = v.slice(0, 40);
-    if ((v = p.get('sort'))) { v = LEGACY_SORT[v] || v; if (v in SORTS) state.sort = v; }
+    if ((v = p.get('sort'))) { v = LEGACY_SORT[v] || v; if (TEAM ? HSORT.hasOwnProperty(v) : v in SORTS) state.sort = v; }
     if (p.get('scope') === 'route') state.scope = 'route';
     if (TEAM && TFILTER.hasOwnProperty(v = p.get('t'))) state.t = v;
+    if (TEAM && COLF.lf.o.hasOwnProperty(v = p.get('lf'))) state.lf = v;   // an old change filter (cf=) is ignored: nothing hidden
   }
   function query() {
     var p = new URLSearchParams();
@@ -91,6 +105,7 @@
     if (state.sort) p.set('sort', state.sort);
     if (state.scope) p.set('scope', state.scope);
     if (state.t) p.set('t', state.t);
+    if (state.lf) p.set('lf', state.lf);
     return p.toString();
   }
   // the hash may carry Telegram's launch data (kept); the menu reopens this session's route state (workspace.js, validated).
@@ -113,7 +128,6 @@
     // the customers' change column names its real windows (last 3 full months vs the 3 before), not a vague «previous 3 months»
     var short = function (ms) { return ymDot(ms[0]) + '–' + ms[ms.length - 1].slice(5); };
     $('cu-head-chg').textContent = short(W.recent) + ' / ' + short(W.base);
-    if (TEAM) $('cu-head-chg').innerHTML = [W.recent, W.base].map(function (m) { return '<span class="yr">' + m[0].slice(0, 5).replace('-', '.') + '</span>' + m[0].slice(5) + '–' + m[m.length - 1].slice(5); }).join(' / ');   // the year folds on a tablet
     $('cu-head-chg').title = 'Сүүлийн 3 бүтэн сар (' + range(W.recent) + ') өмнөх 3 сартай (' + range(W.base) + ') харьцуулсан өөрчлөлт';
     // any date can be picked (unscheduled days show an empty state); previous/next jump between configured days
     var opts = function (vals, all) { return '<option value="">' + all + '</option>' + vals.map(function (v) { return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join(''); };
@@ -166,7 +180,7 @@
     var cnt = { declined: 0, lapsed: 0, never: 0, attention: 0 };
     cs.forEach(function (c) { c.flags.forEach(function (f) { cnt[f]++; }); if (attention(c)) cnt.attention++; });
     return Object.assign({}, FX, {
-      rep: { code: REP, label: r.name + ' · ' + REP + ' · Багийн демо · борлуулалт ' + dDot(FX.cutoff) + ' хүртэл' },
+      rep: { code: REP, label: r.name + ' · ' + REP },
       routes: { label: TD.label, rep: REP, default_day: TD.work_day, order_rule: TD.order_rule,
         days: [{ date: TD.work_day, stops: (TD.routes[REP] || []).filter(function (k) { return mine[k]; }) }] },   // never another rep's store
       visits: { label: TD.visits_label, by_code: vis },
@@ -183,27 +197,76 @@
     if (window.WS) window.WS.page({});   // Telegram Back → «Миний ажил»
   }
   function teamInit() {
-    var side = document.querySelector('.rr-side');
-    side.insertAdjacentHTML('beforeend', '<label class="sort rr-rep"><span class="rr-rep-l">Демо ХТ</span><select id="demo-rep" aria-label="Демо ХТ сонгох (нэвтрэлт биш)">' +
+    // the demo rep choice lives in «Цэс» (the header keeps the title + «Цэс» on one line); no shared menu → the header keeps it
+    var side = document.querySelector('.rr-side'), menu = document.querySelector('[data-ws-menu] .ws-pop');
+    (menu || side).insertAdjacentHTML('beforeend', '<div class="rr-rep-sw"><p class="rr-rep-t">Демо ХТ солих</p><label class="sort rr-rep"><select id="demo-rep" aria-label="Демо ХТ солих (нэвтрэлт биш)">' +
       T.FX.reps.map(function (r) { return '<option value="' + esc(r.code) + '"' + (r.code === REP ? ' selected' : '') + '>' + esc(r.name) + ' · ' + esc(r.code) + '</option>'; }).join('') +
-      '</select><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></label>');
-    var tabRow = document.createElement('div');   // the tablist keeps only its two tabs; the shortcut sits beside it
-    tabRow.className = 'rr-tabrow'; $('tabs').before(tabRow); tabRow.append($('tabs'));
-    tabRow.insertAdjacentHTML('beforeend', '<button type="button" class="btn-sec rr-tkgo" id="tk-go" hidden></button>');
+      '</select><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></label></div>');
+    var tabRow = document.createElement('div');   // the tablist keeps only its two tabs; the shortcut (route) / ⓘ periods (customers) beside it
+    tabRow.className = 'rr-tabrow'; tabRow.id = 'rr-tabrow'; $('tabs').before(tabRow); tabRow.append($('tabs'));
+    tabRow.insertAdjacentHTML('beforeend', '<button type="button" class="btn-sec rr-tkgo" id="tk-go" hidden></button>' +
+      '<button type="button" class="icon-btn rr-info" id="cu-info-btn" popovertarget="cu-info" aria-label="Хугацааны тайлбар" title="Хугацаа" hidden>' +
+      '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5.5M12 7.6v.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>' +
+      '<div class="rr-info-pop" id="cu-info" popover><dl><dt>Сарын дундаж</dt><dd>' + range(W.months) + ' · 12 бүтэн сарын дүн ÷ 12</dd>' +
+      '<dt>Энэ сарын авалт</dt><dd>' + (FX.current ? dDot(FX.current.from) + '–' + FX.current.to.slice(8) : '—') + '</dd></dl></div>');
     document.querySelector('.day-pick .lbl').textContent = 'Ажлын өдөр';
     $('day').setAttribute('aria-label', 'Демо ажлын өдөр');
-    var h = document.querySelector('.rt-head');
-    h.insertAdjacentHTML('beforeend', '<span>Даалгавар</span>');   // the column after the chevron's, above the task marks
+    // route (Claude 35): the customers' sticky block and header controls — tabs · ‹ day › + search · № | Харилцагч | Сүүлд очсон | store.
+    // The schedule order menu is hidden (the headers sort); «Тайлбар» moves into the ⓘ popover beside the tabs.
+    var pr = $('panel-route'), rh = pr.querySelector('.rt-head'), rtbl = document.createElement('div'), rstick = document.createElement('div');
+    rtbl.setAttribute('role', 'table'); rtbl.setAttribute('aria-label', 'Маршрутыг баганаар эрэмбэлэх');
+    rh.id = 'rt-head'; rh.setAttribute('role', 'row'); rh.removeAttribute('aria-hidden'); rtbl.append(rh);
+    rstick.className = 'cu-stick'; rstick.id = 'rt-stick'; pr.prepend(rstick);
+    rstick.append($('route-bar'), pr.querySelector('.route-tools'), rtbl);
+    $('rt-sort').closest('.sort').hidden = true;
+    tabRow.insertAdjacentHTML('beforeend', '<div class="rr-info-pop" id="rt-info" popover></div>');
+    $('rt-info').append($('route-note')); pr.querySelector('.rr-rules').hidden = true;
+    rh.addEventListener('click', function (e) {
+      var s = e.target.closest('[data-rsort]'); if (!s) return;
+      state.rs = s.dataset.rsort === 'no' ? '' : state.rs === 'visit_old' ? 'visit_new' : 'visit_old'; renderRoute();
+    });
     // customers (Claude 32): the list is the main content. Always in view: search · «Шүүлт» · sort, then Бүгд | Даалгавартай |
     // Хариу өгөх and the shown count. The analytic chips, record/aimag/type, route scope and portfolio totals fold into «Шүүлт».
     var tools = document.querySelector('.cu-tools');
     tools.insertAdjacentHTML('afterend', '<div class="cu-panel" id="cu-panel" hidden></div><div class="cu-tbar" id="cu-tbar">' +
-      '<div class="seg cu-tchips" role="group" aria-label="Даалгавраар шүүх (харилцагчийн тоо)" id="cu-tchips"></div></div>');
+      '<div class="seg cu-tchips ws-seg" role="group" aria-label="Даалгавраар шүүх (харилцагчийн тоо)" id="cu-tchips"></div></div>');
     var panel = $('cu-panel');
     [$('cu-sum'), $('cu-chips')].concat([].slice.call(tools.querySelectorAll('.cu-sec')), [$('cu-scope')]).forEach(function (el) { panel.append(el); });
     $('cu-tbar').append($('cu-count'), $('cu-reset'));
+    $('cu-reset').insertAdjacentHTML('beforebegin', '<span class="cu-fxs" id="cu-fxs"></span>');   // active column filters, each clearable
     $('cu-more').setAttribute('aria-controls', 'cu-panel');
-    $('cu-reset').title = 'Хайлт, даалгаврын шүүлт, нэмэлт шүүлтийг цэвэрлэнэ (эрэмбэ хэвээр)';
+    $('cu-reset').title = 'Хайлт, даалгаврын шүүлт, баганын болон нэмэлт шүүлтийг цэвэрлэнэ (эрэмбэ хэвээр)';
+    // Claude 34: one sticky block = the tabs (moved in by selectTab) + search/«Шүүлт» + task choices + periods + column headers.
+    // The headers sort (aria-sort; the old sort menu is hidden) and two of them filter through one popover inside the block.
+    var pc = $('panel-customers'), head = pc.querySelector('.cu-head'), tbl = document.createElement('div');
+    tbl.setAttribute('role', 'table'); tbl.setAttribute('aria-label', 'Харилцагчдыг баганаар эрэмбэлэх, шүүх');
+    head.id = 'cu-head'; head.setAttribute('role', 'row'); head.removeAttribute('aria-hidden'); tbl.append(head);
+    var stick = document.createElement('div'); stick.className = 'cu-stick'; stick.id = 'cu-stick'; pc.prepend(stick);
+    stick.append(tools, panel, $('cu-tbar'), tbl);
+    stick.insertAdjacentHTML('beforeend', '<div class="cu-pop" id="cu-pop" role="dialog" aria-labelledby="cu-pop-t" hidden></div>');
+    $('cu-sort').closest('.sort').hidden = true;
+    $('cu-head').addEventListener('click', function (e) {
+      var f = e.target.closest('[data-filter]'), s = e.target.closest('[data-sort]');
+      if (f) { if (pop.f === f.dataset.filter) closePop(); else openPop(f.dataset.filter); return; }
+      if (!s) return;
+      var col = COLS.filter(function (x) { return x.k === s.dataset.sort; })[0], cur = sortKey();
+      var nx = cur === col.s[0][0] ? col.s[1][0] : col.s[0][0];
+      state.sort = nx === 't12' ? '' : nx; closePop(); renderCustomers(); toListTop();
+    });
+    $('cu-pop').addEventListener('click', function (e) {
+      var f = pop.f, o = e.target.closest('[data-v]');
+      if (e.target.closest('[data-pop-close]')) { closePop(); focusFunnel(f); return; }
+      if (!o) return;
+      closePop(); state[f] = o.dataset.v; renderCustomers(); toListTop(); focusFunnel(f);
+    });
+    $('cu-fxs').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-clear]'); if (!b) return;
+      state[b.dataset.clear] = ''; renderCustomers(); focusFunnel(b.dataset.clear);
+    });
+    // light dismiss: a tap outside closes the popover and does nothing else (no row opens, no sort); Esc closes it too
+    document.addEventListener('click', function (e) { if (pop.f && !e.target.closest('#cu-pop, [data-filter]')) { closePop(); e.preventDefault(); e.stopPropagation(); } }, true);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && pop.f) { var f = pop.f; closePop(); focusFunnel(f); } });
+    addEventListener('resize', function () { if (pop.f) placePop(); });
     $('demo-rep').addEventListener('change', function () {   // a fresh page for that rep (same webview, Telegram launch data kept)
       var u = '?demo=team&rep=' + encodeURIComponent(this.value);
       if (!(window.WS && window.WS.go(u))) location.assign(u);
@@ -211,7 +274,7 @@
     $('tk-go').addEventListener('click', function () { taskFilter('reply', true); selectTab('customers'); $('cu-tchips').querySelector('[data-t="reply"]').focus(); });
     $('cu-tchips').addEventListener('click', function (e) {
       var b = e.target.closest('[data-t]'); if (!b) return;
-      taskFilter(b.dataset.t);
+      taskFilter(b.dataset.t); toListTop();
       var nb = $('cu-tchips').querySelector('[data-t="' + b.dataset.t + '"]'); if (nb) nb.focus();
     });
   }
@@ -220,8 +283,8 @@
   function renderTaskGo() {
     var n = FX.customers.filter(function (c) { return (tasksOf(c.code) || {}).todo; }).length, b = $('tk-go');
     b.hidden = !n || state.tab === 'customers';
-    b.innerHTML = ic('reply') + 'Хариу өгөх: <b class="num">' + n + '</b> харилцагч';
-    b.setAttribute('aria-label', 'Хариу өгөх ажилтай ' + n + ' харилцагч: бүх харилцагчаас харах');
+    b.innerHTML = ic('reply') + '<span class="rr-tkgo-t"><span>Харилцагчид:</span> хариу өгөх <b class="num">' + n + '</b></span>';
+    b.setAttribute('aria-label', 'Бүх харилцагчаас ' + n + ' нь хариу өгөх ажилтай: Харилцагчид хэсэгт харах');
   }
   // the route tab's shortcut opens every assigned customer (all: chip, scope, extra filters and search reset). Choosing in the
   // list keeps the folded extra filters; the count line then says how many customers with that work they hide.
@@ -231,18 +294,79 @@
     renderCustomers();
   }
   var extraOn = function () { return (state.f !== 'all') + (state.rec !== 'all') + !!state.aimag + !!state.type + !!state.scope; };   // team: what «Шүүлт» folds
+  // ---------- team demo (Claude 34): column headers (sort + funnel) and the one filter popover ----------
+  var pop = { f: '' };
+  function renderHead() {
+    var cur = sortKey(), a = document.activeElement, keep = a && a.closest && a.closest('#cu-head') ? (a.dataset.sort ? '[data-sort="' + a.dataset.sort + '"]' : '[data-filter="' + a.dataset.filter + '"]') : '';
+    $('cu-head').innerHTML = COLS.map(function (col) {
+      var dir = HSORT[cur] === col ? col.s.filter(function (s) { return s[0] === cur; })[0] : null, f = col.f, fv = f ? state[f] : '';
+      var next = dir && dir[0] === col.s[0][0] ? col.s[1] : col.s[0];
+      return '<div role="columnheader" class="cu-hc cu-h-' + col.k + (dir ? ' is-on' : '') + '" aria-sort="' + (dir ? dir[1] : 'none') + '">' +
+        (f ? '<button type="button" class="cu-hf' + (fv ? ' is-on' : '') + '" data-filter="' + f + '" aria-haspopup="dialog" aria-controls="cu-pop" aria-expanded="' + (pop.f === f) + '" aria-label="' +
+          esc(col.l + ': шүүлт' + (fv ? ', одоо «' + COLF[f].o[fv] + '»' : '')) + '" title="Шүүх">' + ic('funnel') + '</button>' : '') +
+        // the arrow stays on the label's last word, so a two-line label is no wider than its longest word
+        '<button type="button" class="cu-hs" data-sort="' + col.k + '" title="' + esc('Эрэмбэлэх: ' + next[2]) + '"><span class="cu-hl">' + col.l.replace(/(\S+)$/, '<span class="nw">$1' +
+          '<svg class="ic cu-ar' + (dir ? ' ' + dir[1].slice(0, 3) : '') + '" aria-hidden="true"><use href="#i-' + (dir ? 'arr' : 'sort') + '"/></svg></span>') + '</span></button></div>';
+    }).join('');
+    if (keep) $('cu-head').querySelector(keep).focus();
+  }
+  function popHint(f, v) {
+    return { d30: 'Сүүлийн авалтаас 30+ хоног', never: dDot(FX.coverage.from) + '-аас хойш авалтгүй' }[v] || '';
+  }
+  function renderPop() {   // options count the customers the other filters already show
+    var f = pop.f, el = $('cu-pop'), b = base(), a = document.activeElement, keep = a && a.closest && a.closest('#cu-pop [data-v]') ? a.dataset.v : null;
+    el.innerHTML = '<div class="cu-pop-h"><b id="cu-pop-t">' + COLS.filter(function (c) { return c.f === f; })[0].l + ' · шүүлт</b>' +
+      '<button type="button" class="icon-btn" data-pop-close aria-label="Хаах">' + ic('x') + '</button></div>' +
+      [''].concat(Object.keys(COLF[f].o)).map(function (v) {
+        var n = b.filter(function (c) { return pass(c, f) && inCol(c, f, v); }).length, h = popHint(f, v);
+        return '<button type="button" class="cu-opt" data-v="' + v + '" aria-pressed="' + (state[f] === v) + '"><span>' + (COLF[f].o[v] || 'Бүгд') + (h ? '<small>' + esc(h) + '</small>' : '') + '</span><b class="num">' + n + '</b></button>';
+      }).join('');
+    el.hidden = false; placePop();
+    if (keep !== null) el.querySelector('[data-v="' + keep + '"]').focus();
+  }
+  // inside the sticky block (it moves with the headers); right-aligned under its column, never past the screen edges.
+  // Not enough room below → the page scrolls so the block sticks first; still short → the list of options scrolls.
+  function placePop() {
+    var el = $('cu-pop'), cell = $('cu-head').querySelector('[data-filter="' + pop.f + '"]').parentNode, w = Math.min(300, innerWidth - 24);
+    el.style.width = w + 'px'; el.style.maxHeight = '';
+    var r = cell.getBoundingClientRect(), need = r.bottom + 4 + el.offsetHeight + 12 - innerHeight;
+    if (need > 0) { scrollBy(0, need); r = cell.getBoundingClientRect(); }
+    var s = $('cu-stick').getBoundingClientRect(), x = Math.max(12, Math.min(r.right - w, innerWidth - 12 - w));
+    el.style.left = (x - s.left) + 'px'; el.style.top = (r.bottom - s.top + 4) + 'px';
+    el.style.maxHeight = Math.max(120, innerHeight - r.bottom - 16) + 'px';
+  }
+  function openPop(f) { pop.f = f; renderHead(); renderPop(); var o = $('cu-pop').querySelector('[aria-pressed="true"]'); if (o) o.focus(); }
+  function closePop() { if (!pop.f) return; pop.f = ''; $('cu-pop').hidden = true; [].forEach.call($('cu-head').querySelectorAll('[data-filter]'), function (b) { b.setAttribute('aria-expanded', 'false'); }); }
+  function focusFunnel(f) { var b = $('cu-head').querySelector('[data-filter="' + f + '"]'); if (b) b.focus(); }
+  function toListTop() {   // a new order or filter starts at its first row (just under the sticky block), never mid-list
+    var s = $('cu-stick'), y = $('cu-list').getBoundingClientRect().top + window.scrollY - s.offsetHeight - (parseFloat(getComputedStyle(s).top) || 0);
+    if (window.scrollY > y) window.scrollTo(0, y);
+  }
   var tasksOf = function (code) { return TK && TK.get(code) || null; };
   var ic = function (id) { return '<svg class="ic" aria-hidden="true"><use href="#i-' + id + '"/></svg>'; };
   function taskSay(t) {
     return [t.todo ? 'хариу өгөх ' + t.todo : '', t.back ? 'үүнээс буцаасан ' + t.back : '', t.review ? 'хянуулж байгаа ' + t.review : ''].filter(Boolean).join(', ');
   }
-  // route row: one compact mark per customer with active work — «Даалгавар N» + the most urgent state; a separate link from the row
-  function taskChip(c) {
+  // route row: the tags are status inside the row (as in the customer list); the shortcut to the task is its own 44px cell beside the
+  // store button, so the row's name, code and centre always open the drawer. Its mark: returned work first, then work to reply to.
+  function taskBtn(c) {
     var t = tasksOf(c.code);
-    if (!t || !t.active) return '<span class="rt-task-none" aria-hidden="true"></span>';
-    var st = t.back ? ['back', 'undo', 'Буцаасан'] : t.todo ? ['need', 'reply', 'Хариу өгөх ' + t.todo] : ['rev', 'review', 'Хянуулж байна'];
-    return '<a class="rt-task tk-' + st[0] + '" href="' + esc(reportUrl(c.code, t.list[0].id, true)) + '" data-report="' + esc(c.code) + '" aria-label="' +
-      esc(c.name + ': даалгавар ' + t.active + ' (' + taskSay(t) + '). Дэлгүүрийн цонхны даалгавар руу') + '"><b>Даалгавар ' + t.active + '</b><span>' + ic(st[1]) + st[2] + '</span></a>';
+    if (!t || !t.active) return '<span class="rt-win-none" aria-hidden="true"></span>';
+    var k = t.back ? ['back', 'undo'] : t.todo ? ['need', 'reply'] : ['rev', 'review'];
+    return '<a class="icon-btn rt-tkbtn tk-' + k[0] + '" href="' + esc(reportUrl(c.code, t.list[0].id, true)) + '" data-report="' + esc(c.code) + '" aria-label="' +
+      esc(c.name + ': даалгавар ' + t.active + ' (' + taskSay(t) + '). Дэлгүүрийн цонхны даалгавар руу') + '" title="Даалгавар нээх">' + ic(k[1]) + '<b class="num">' + t.active + '</b></a>';
+  }
+  function renderRouteHead() {   // № = the schedule order; Сүүлд очсон flips удаан очоогүйгээс ↔ сүүлд очсоноос (the customers' header controls)
+    var a = document.activeElement, keep = a && a.dataset && a.dataset.rsort, v = state.rs;
+    var cell = function (k, l, dir, title) {
+      return '<div role="columnheader" class="cu-hc rt-h-' + k + (dir ? ' is-on' : '') + '" aria-sort="' + (dir || 'none') + '"><button type="button" class="cu-hs" data-rsort="' + k + '" title="' + title + '">' +
+        '<span class="cu-hl"><span class="nw">' + l + '<svg class="ic cu-ar' + (dir ? ' ' + dir.slice(0, 3) : '') + '" aria-hidden="true"><use href="#i-' + (dir ? 'arr' : 'sort') + '"/></svg></span></span></button></div>';
+    };
+    $('rt-head').innerHTML = cell('no', '№', v ? '' : 'ascending', 'Хуваарийн дараалал') + '<div role="columnheader" class="cu-hc rt-h-name">Харилцагч</div>' +
+      cell('visit', 'Сүүлд очсон', v === 'visit_old' ? 'ascending' : v === 'visit_new' ? 'descending' : '', v === 'visit_old' ? 'Эрэмбэлэх: сүүлд очсоноос' : 'Эрэмбэлэх: удаан очоогүйгээс') +
+      '<div role="columnheader" class="cu-hc rt-h-win" title="Даалгавар">' + ic('reply') + '<span class="sr-only">Даалгавар нээх</span></div>' +
+      '<div role="columnheader" class="cu-hc rt-h-win" title="Дэлгүүрийн цонх">' + ic('store') + '<span class="sr-only">Дэлгүүр нээх</span></div>';
+    if (keep) $('rt-head').querySelector('[data-rsort="' + keep + '"]').focus();
   }
   // customer row: compact status tags, only the non-zero ones (closed work is in the drawer and the store window)
   function taskTags(c) {
@@ -256,12 +380,12 @@
   function drawerTasks(c) {
     var t = tasksOf(c.code); if (!t) return '';
     var act = t.list.filter(function (a) { return a.status === 'todo' || a.status === 'review'; });
-    return '<section class="pd-sec rr-tasks" id="dr-tasks"><h3>Даалгавар <span>идэвхтэй ' + t.active + '</span></h3>' +
+    return '<section class="pd-sec rr-tasks" id="dr-tasks"><h3>Даалгавар <span>одоо нээлттэй ' + t.active + '</span></h3>' +
       (act.length ? '<ul class="rr-tk-list">' + act.map(function (a) {
         var s = TSTATE(a), task = T.S.tasks.get(a.task);
         return '<li><a class="rr-tk" href="' + esc(reportUrl(c.code, a.id, true)) + '" data-report="' + esc(c.code) + '"><span class="tk tk-' + s[0] + '">' + ic(s[1]) + s[2] + '</span>' +
           '<span class="rr-tk-t">' + esc(task.title) + '</span><span class="rr-tk-d num">Хугацаа ' + T.short(task.due) + '</span>' + ic('right') + '</a></li>';
-      }).join('') + '</ul>' : '<p class="rr-tk-none">Идэвхтэй даалгавар алга.</p>') +
+      }).join('') + '</ul>' : '<p class="rr-tk-none">Одоо нээлттэй даалгавар алга.</p>') +
       (t.done || t.failed ? '<p class="rr-tk-past">Өмнөх: Баталгаажсан <b>' + t.done + '</b> · Биелээгүй <b>' + t.failed + '</b></p>' : '') +
       '<a class="btn-sec rr-tk-all" href="' + esc(reportUrl(c.code, '', true)) + '" data-report="' + esc(c.code) + '">' + ic('store') + 'Даалгавар харах</a></section>';
   }
@@ -276,9 +400,19 @@
 
   // ---------- tabs ----------
   var TABS = ['route', 'customers'];
+  var LOW = window.matchMedia('(max-height: 560px)');   // a low landscape tablet: the tabs sit above the sticky block and scroll away
+  function placeTabs() { var st = $(state.tab === 'customers' ? 'cu-stick' : 'rt-stick'); if (LOW.matches) st.before($('rr-tabrow')); else st.prepend($('rr-tabrow')); }
+  LOW.addEventListener('change', function () { if (TEAM) placeTabs(); });   // turning the tablet moves them back
   function selectTab(t, focus) {
     scrollY[state.tab] = window.scrollY;
     state.tab = t;
+    if (TEAM) {   // the tabs head the active card: in the customers' sticky block, above the route bar (same place on both tabs)
+      var tr = $('rr-tabrow'), fo = tr.contains(document.activeElement) ? document.activeElement : null;
+      closePop(); placeTabs();
+      $('cu-info-btn').hidden = false; $('cu-info-btn').setAttribute('popovertarget', t === 'customers' ? 'cu-info' : 'rt-info');   // ⓘ: this tab's own note
+      $('cu-info-btn').setAttribute('aria-label', t === 'customers' ? 'Хугацааны тайлбар' : 'Маршрутын тайлбар');
+      if (fo) fo.focus({ preventScroll: true });
+    }
     TABS.forEach(function (k) {
       var on = k === t, b = $('tab-' + k);
       b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
@@ -315,37 +449,50 @@
     var none = !d;
     document.querySelector('.route-tools').hidden = none;
     document.querySelector('.rt-head').hidden = none;
+    $('count-route').textContent = d ? d.stops.length : '';
     if (none) {
       $('route-list').innerHTML = '';
       $('route-empty').hidden = false;
-      $('route-empty').textContent = dDot(state.day) + '-нд жишиг маршрут тохируулаагүй. Тохируулсан өдөр: ' + days.map(dDot).join(', ') + '.';
+      emptyState('route-empty', dDot(state.day) + '-нд жишиг маршрут тохируулаагүй. Тохируулсан өдөр: ' + days.map(dDot).join(', ') + '.', dDot(FX.routes.default_day) + '-ны маршрут харах', 'day');
       writeUrl();
       return;
     }
     var stops = routeStops();
-    // team demo: + how many of this route's customers have work to reply to (customers, not tasks; none → nothing added)
-    var need = TEAM ? d.stops.filter(function (k) { return (tasksOf(k) || {}).todo; }).length : 0;
-    $('route-count').textContent = (state.rq ? stops.length + '/' + d.stops.length + ' дэлгүүр' : d.stops.length + ' дэлгүүр') + (need ? ' · хариу өгөх ' + need : '');
-    $('route-count').setAttribute('aria-label', (state.rq ? d.stops.length + ' дэлгүүрээс ' + stops.length + ' нь харагдаж байна' : d.stops.length + ' дэлгүүр') +
-      (need ? '; ' + need + ' харилцагч хариу өгөх ажилтай' : ''));
+    $('route-count').innerHTML = '<b>' + stops.length + '</b> / ' + d.stops.length + ' харилцагч';
+    $('route-count').hidden = !state.rq;   // the tab carries the route's count; while searching: shown / all of the route
+    $('route-count').setAttribute('aria-label', 'Маршрутын ' + d.stops.length + ' харилцагчаас ' + stops.length + ' нь харагдаж байна');
     $('rt-clear').hidden = !state.rq;
     $('route-empty').hidden = stops.length > 0;
-    $('route-empty').textContent = '«' + state.rq + '» гэсэн дэлгүүр энэ маршрутад алга.';
+    emptyState('route-empty', '«' + state.rq + '» нэр, кодтой харилцагч энэ маршрутад алга.', 'Хайлтыг цэвэрлэх', 'rq');
     // one line name, one line code · type (aimag stays in the drawer); last visit = short date + days, or «Бүртгэлгүй»
+    if (TEAM) renderRouteHead();
     $('route-list').innerHTML = stops.map(function (s) {
       var c = byCode[s.code], gap = s.lv ? daysBetween(s.lv, state.day) : null;
       return '<li class="rt-item"><button type="button" class="rt-row" data-code="' + esc(c.code) + '" aria-haspopup="dialog" aria-label="' +
-        esc('№' + s.no + ', ' + c.name + ', ' + c.code + ', ' + c.type + '. Сүүлд очсон: ' + (s.lv ? dDot(s.lv) + ', ' + gap + ' хоног' : 'бүртгэлгүй')) + '">' +
+        esc('№' + s.no + ', ' + c.name + ', ' + c.code + (TEAM ? '' : ', ' + c.type) + '. Сүүлд очсон: ' + (s.lv ? dDot(s.lv) + ', ' + gap + ' хоног' : 'бүртгэлгүй') +
+          (TEAM && tasksOf(c.code) && tasksOf(c.code).active ? '. Даалгавар: ' + taskSay(tasksOf(c.code)) : '')) + '">' +
         '<span class="rt-no num" title="Хуваарьт дараалал">' + s.no + '</span>' +
-        '<span class="rt-main"><b>' + esc(c.name) + '</b><span>' + esc(c.code + ' · ' + c.type) + '</span></span>' +
+        // team demo: the customer list's name, then its status tags + code (part of the row: they open the drawer too)
+        (TEAM ? '<span class="rt-main"><b class="cu-n1">' + esc(c.name) + '</b><span class="cu-n2">' + taskTags(c) + '<span class="cu-meta">' + esc(c.code) + '</span></span></span>'
+          : '<span class="rt-main"><b>' + esc(c.name) + '</b><span>' + esc(c.code + ' · ' + c.type) + '</span></span>') +
         '<span class="rt-visit num">' + (s.lv ? '<b>' + shortDate(s.lv) + '</b><span>' + gap + ' хоног</span>' : '<span class="muted-s">Бүртгэлгүй</span>') + '</span>' +
-        '<svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>' + (TEAM ? taskChip(c) : '') +
+        (TEAM ? '</button>' + taskBtn(c) : '<svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>') +
         (hasReport(c.code) ? '<a class="icon-btn rt-win" href="' + esc(reportUrl(c.code)) + '" data-report="' + esc(c.code) + '" aria-label="' + esc(c.name) + ': дэлгүүрийн цонх нээх" title="Дэлгүүрийн цонх">' +
           '<svg class="ic" aria-hidden="true"><use href="#i-store"/></svg></a>' : '<span class="rt-win-none" aria-hidden="true"></span>') + '</li>';
     }).join('');
     writeUrl();
   }
   function setDay(v) { if (!v) return; state.day = v; renderRoute(); if (state.scope) renderCustomers(); }
+  // an empty list says why and offers the one action that undoes it (clear the search / the filters, back to a route day)
+  function emptyState(id, text, action, key) {
+    $(id).innerHTML = '<span>' + esc(text) + '</span><button type="button" class="btn-sec" data-empty="' + key + '">' + esc(action) + '</button>';
+  }
+  function undoEmpty(key) {
+    if (key === 'rq') { state.rq = ''; renderRoute(); $('rt-q').focus(); }
+    else if (key === 'day') { setDay(FX.routes.default_day); $('day').focus(); }
+    else if (key === 't') { state.t = ''; renderCustomers(); $('cu-q').focus(); }
+    else $('cu-reset').click();
+  }
 
   // ---------- customers ----------
   function inRoute(c) { var d = routeDay(state.day); return !!d && d.stops.indexOf(c.code) >= 0; }
@@ -357,6 +504,11 @@
   }
   function inChip(c, f) { return f === 'all' || (f === 'attention' ? attention(c) : has(c, f)); }
   function inTask(c, t) { var x = tasksOf(c.code); return !t || !!x && (t === 'reply' ? x.todo > 0 : x.active > 0); }   // team demo only
+  function pass(c, skip) {   // everything on top of base(): chip, task, search, column filters (skip = leave one out: its popover's counts)
+    var q = norm(state.q);
+    return inChip(c, state.f) && inTask(c, state.t) && (!q || norm(c.name + ' ' + c.code).indexOf(q) >= 0) &&
+      (skip === 'lf' || inCol(c, 'lf', state.lf));
+  }
   var code = function (a, b) { return a.code.localeCompare(b.code); };
   var validB = function (c) { return c.b > 0; };
   var CMP = {   // real (unrounded) values; ties by a meaningful value, then code; no comparison base / never purchased always last
@@ -366,20 +518,25 @@
     last_new: function (a, b) { return (a.last === null) - (b.last === null) || (a.last > b.last ? -1 : a.last < b.last ? 1 : 0) || code(a, b); },
     last_old: function (a, b) { return (a.last === null) - (b.last === null) || (a.last < b.last ? -1 : a.last > b.last ? 1 : 0) || code(a, b); },
     t12: function (a, b) { return b.t12 - a.t12 || code(a, b); },
+    t12_asc: function (a, b) { return a.t12 - b.t12 || code(a, b); },
+    cur: function (a, b) { return (typeof a.cur !== 'number') - (typeof b.cur !== 'number') || b.cur - a.cur || code(a, b); },
+    cur_asc: function (a, b) { return (typeof a.cur !== 'number') - (typeof b.cur !== 'number') || a.cur - b.cur || code(a, b); },
+    name_desc: function (a, b) { return b.name.localeCompare(a.name, 'mn') || code(a, b); },
     lapsed: function (a, b) { return b.t12 - a.t12 || (b.gap || 0) - (a.gap || 0) || code(a, b); },
     name: function (a, b) { return a.name.localeCompare(b.name, 'mn') || code(a, b); }
   };
   var DEFAULT_SORT = { declined: 'decline', lapsed: 'lapsed', never: 'name', all: 't12' };
   // → [{ title|null, rows }]: default «Анхаарах» = lapsed first (12-month value), then the other declined (largest ₮ drop); any chosen sort = one list
+  // team demo: always one list in the header's order (no groups), so the active column always says how it is sorted
+  function sortKey() { return TEAM ? (HSORT[state.sort] ? state.sort : 't12') : state.sort || DEFAULT_SORT[state.f]; }
   function groups() {
-    var q = norm(state.q);
-    var list = base().filter(function (c) { return inChip(c, state.f) && inTask(c, state.t) && (!q || norm(c.name + ' ' + c.code).indexOf(q) >= 0); });
-    if (state.f === 'attention' && !state.sort) {
+    var list = base().filter(function (c) { return pass(c); });
+    if (!TEAM && state.f === 'attention' && !state.sort) {
       var lap = list.filter(function (c) { return has(c, 'lapsed'); }).sort(CMP.lapsed);
       var dec = list.filter(function (c) { return !has(c, 'lapsed') && has(c, 'declined'); }).sort(CMP.decline);
       return [{ title: 'Авалт тасарсан', note: '12 сарын дүнгээр', rows: lap }, { title: 'Буурсан', note: 'бууралтын дүнгээр', rows: dec }].filter(function (g) { return g.rows.length; });
     }
-    return [{ title: null, rows: list.sort(CMP[state.sort || DEFAULT_SORT[state.f]]) }];
+    return [{ title: null, rows: list.sort(CMP[sortKey()]) }];
   }
   function spark(c) {   // 12 bars from a shared zero line; negatives below it; the two compared quarters tinted
     var w = 6, gap = 2, h = 28, vals = c.m, maxP = Math.max.apply(null, vals.concat([0])), maxN = Math.max.apply(null, vals.map(function (v) { return -v; }).concat([0]));
@@ -399,15 +556,18 @@
       : '<span class="muted-s">Суурьгүй</span>';
     var last = c.last ? '<b>' + shortDate(c.last) + '</b><span>' + c.gap + ' хоног</span>' : '<span class="muted-s">Авч байгаагүй</span>';
     return '<li><button type="button" class="cu-row" data-code="' + esc(c.code) + '" aria-haspopup="dialog" aria-label="' + esc(ariaRow(c)) + '">' +
-      (TEAM ? '<span class="cu-name"><span class="cu-n1"><b>' + esc(c.name) + '</b>' + taskTags(c) + '</span><span class="cu-n2">' +
-          esc([c.code, c.aimag, c.type].concat(c.flags.map(function (f) { return FLAG[f]; }), c.record === 'old' ? ['Хуучин бүртгэл'] : []).join(' · ')) + '</span></span>'
-        : '<span class="cu-name"><span class="cu-n1"><b>' + esc(c.name) + '</b>' + badges(c) + '</span><span class="cu-n2">' + esc(c.code + ' · ' + c.aimag + ' · ' + c.type) + '</span></span>') +
+      // team demo: the name alone on its line (may wrap); task tags + code under it. Then monthly average · this month · last purchase.
+      (TEAM ? '<span class="cu-name"><b class="cu-n1">' + esc(c.name) + '</b><span class="cu-n2">' + taskTags(c) + '<span class="cu-meta">' + esc(c.code) + '</span></span></span>' +
+          '<span class="cu-t12 num">' + money(c.t12 / 12) + '</span><span class="cu-t12 cu-cur num">' + curOf(c) + '</span><span class="cu-last num">' + last + '</span></button></li>'
+        : '<span class="cu-name"><span class="cu-n1"><b>' + esc(c.name) + '</b>' + badges(c) + '</span><span class="cu-n2">' + esc(c.code + ' · ' + c.aimag + ' · ' + c.type) + '</span></span>' +
       '<span class="cu-t12 num">' + money(c.t12) + '</span>' +
       '<span class="cu-chg num">' + chg + '</span>' +
       '<span class="cu-last num">' + last + '</span>' +
-      '<span class="cu-spark">' + spark(c) + '</span></button></li>';
+      '<span class="cu-spark">' + spark(c) + '</span></button></li>');
   }
   function ariaRow(c) {
+    if (TEAM) return c.name + ', ' + c.code + '. Сарын дундаж ' + money(c.t12 / 12) + ', энэ сарын авалт ' + curOf(c) +
+      (c.last ? ', сүүлд авсан ' + dDot(c.last) + ', ' + c.gap + ' хоног' : ', авч байгаагүй') + (tasksOf(c.code) && tasksOf(c.code).active ? '. Даалгавар: ' + taskSay(tasksOf(c.code)) : '');
     return c.name + ', ' + c.code + '. 12 сарын дүн ' + money(c.t12) + (c.b > 0 ? ', өмнөх 3 сараас ' + pctS(c.rate) : ', харьцуулах суурьгүй') +
       (c.last ? ', сүүлд авсан ' + dDot(c.last) + ', ' + c.gap + ' хоног' : ', авч байгаагүй') + (c.flags.length ? '. ' + c.flags.map(function (f) { return FLAG[f]; }).join(', ') : '') +
       (tasksOf(c.code) && tasksOf(c.code).active ? '. Даалгавар: ' + taskSay(tasksOf(c.code)) : '');
@@ -419,7 +579,7 @@
     // team demo: active work counted in tasks («ажил»); the filter buttons below count customers, like every chip
     var all = TEAM ? FX.customers.reduce(function (t, c) { var x = tasksOf(c.code); if (x) { t.a += x.active; t.r += x.todo; } return t; }, { a: 0, r: 0 }) : null;
     $('cu-sum').innerHTML = '<span class="cu-sum-l">Нийт портфель</span><span><b>' + FX.portfolio.n + '</b> харилцагч</span><span>12 сарын дүн <b>' + money(FX.portfolio.t12) + '</b> <span class="muted-s">' + range(W.months) + '</span></span>' +
-      '<span>Анхаарах <b>' + FX.counts.attention + '</b></span>' + (all ? '<span>Идэвхтэй ажил <b>' + all.a + '</b> (хариу өгөх <b>' + all.r + '</b>)</span>' : '');
+      '<span>Анхаарах <b>' + FX.counts.attention + '</b></span>' + (all ? '<span>Одоо нээлттэй ажил <b>' + all.a + '</b> (үүнээс хариу өгөх <b>' + all.r + '</b>)</span>' : '');
     if (TEAM) $('cu-tchips').innerHTML = [''].concat(Object.keys(TFILTER)).map(function (t) {
       return '<button type="button" class="seg-btn tk-f" data-t="' + t + '" aria-pressed="' + (state.t === t) + '">' + (TFILTER[t] || 'Бүгд') + ' <b class="num">' + b.filter(function (c) { return inTask(c, t); }).length + '</b></button>';
     }).join('');
@@ -436,8 +596,14 @@
     var gs = groups(), rows = gs.reduce(function (t, g) { return t.concat(g.rows); }, []);
     var rowsT12 = money(rows.reduce(function (t, c) { return t + c.t12; }, 0)), sec = extraOn();
     if (TEAM) {   // the shown count; folded extra filters are named here, with how many customers with that work they hide
-      var q0 = norm(state.q), hid = state.t && sec ? FX.customers.filter(function (c) { return inTask(c, state.t) && (!q0 || norm(c.name + ' ' + c.code).indexOf(q0) >= 0); }).length - rows.length : 0;
-      $('cu-count').innerHTML = '<b>' + rows.length + '</b> харилцагч' + (sec ? ' · <span class="cu-tnow">нэмэлт шүүлт ' + sec + '</span>' : '') +
+      var q0 = norm(state.q), hid = state.t && sec ? FX.customers.filter(function (c) {
+        return inTask(c, state.t) && (!q0 || norm(c.name + ' ' + c.code).indexOf(q0) >= 0) && inCol(c, 'lf', state.lf);
+      }).length - rows.length : 0;
+      $('cu-fxs').innerHTML = ['lf'].filter(function (k) { return state[k]; }).map(function (k) {
+        return '<button type="button" class="scope-chip cu-fx" data-clear="' + k + '" aria-label="' + esc(COLF[k].l + ': «' + COLF[k].o[state[k]] + '» шүүлтийг арилгах') + '">' +
+          COLF[k].l + ': ' + COLF[k].o[state[k]] + '<span aria-hidden="true"> ✕</span></button>';
+      }).join('');
+      $('cu-count').innerHTML = '<b>' + rows.length + '</b>' + (rows.length !== FX.customers.length ? ' / ' + FX.customers.length : '') + ' харилцагч' + (sec ? ' · <span class="cu-tnow">нэмэлт шүүлт ' + sec + '</span>' : '') +
         (hid > 0 ? ' <span class="cu-hid">(' + hid + ' нь нэмэлт шүүлтэд нуугдсан)</span>' : '');
       $('cu-sum').insertAdjacentHTML('beforeend', '<span>Харагдаж буй ' + rows.length + ': <b>' + rowsT12 + '</b></span>');
     } else $('cu-count').innerHTML = '<span class="cu-res-l">Шүүлтийн үр дүн</span> <b>' + rows.length + '</b> харилцагч · 12 сарын дүн <b>' + rowsT12 + '</b>' +
@@ -447,12 +613,12 @@
         '<ul class="cu-list">' + g.rows.map(row).join('') + '</ul>';
     }).join('');
     $('cu-empty').hidden = rows.length > 0;
-    $('cu-empty').textContent = state.t && b.length === FX.portfolio.n && state.f === 'all' && !state.q ? (state.t === 'reply' ? 'Хариу өгөх ажилтай харилцагч алга.' : 'Идэвхтэй даалгавартай харилцагч алга.')
-      : 'Тохирох харилцагч алга. Шүүлтээ цэвэрлэж үзнэ үү.';
-    $('cu-reset').hidden = TEAM ? !(state.q || state.t || sec) : !(state.q || state.rec !== 'all' || state.aimag || state.type || state.sort || state.scope);
+    if (state.t && b.length === FX.portfolio.n && state.f === 'all' && !state.q && !state.lf) emptyState('cu-empty', state.t === 'reply' ? 'Хариу өгөх ажилтай харилцагч алга.' : 'Одоо нээлттэй даалгавартай харилцагч алга.', 'Бүх харилцагчийг харах', 't');
+    else emptyState('cu-empty', (state.q ? '«' + state.q + '» нэр, кодтой' : 'Сонгосон шүүлтэд тохирох') + ' харилцагч алга.', 'Хайлт, шүүлтийг цэвэрлэх', 'cu');
+    $('cu-reset').hidden = TEAM ? !(state.q || state.t || sec || state.lf) :!(state.q || state.rec !== 'all' || state.aimag || state.type || state.sort || state.scope);
     if (!TEAM) sec = (state.rec !== 'all') + !!state.aimag + !!state.type;   // phone: secondary filters fold behind «Шүүлт»
     $('cu-more-n').textContent = sec; $('cu-more-n').hidden = !sec;
-    if (TEAM) $('cu-more').setAttribute('aria-label', 'Шүүлт' + (sec ? ', ' + sec + ' идэвхтэй' : '') + ': ангилал, бүртгэл, аймаг, төрөл, нийлбэр');
+    if (TEAM) { $('cu-more').setAttribute('aria-label', 'Шүүлт' + (sec ? ', ' + sec + ' идэвхтэй' : '') + ': ангилал, бүртгэл, аймаг, төрөл, нийлбэр'); renderHead(); if (pop.f) renderPop(); }
     writeUrl();
   }
 
@@ -506,7 +672,7 @@
         card('t12', '12 сарын дүн', money(c.t12), range(W.months)) +
         card('avg', 'Сарын дундаж', money(c.t12 / 12), 'Өмнөх 12 бүтэн сар') +
         card('cur', 'Энэ сарын гүйцэтгэл', typeof c.cur === 'number' ? money(c.cur) : '—', curRange) +
-        card('visit', 'Сүүлд очсон', lv ? dDot(lv) : 'Очсон бүртгэлгүй', lv ? daysBetween(lv, state.day) + ' хоног · ' + shortDate(state.day) + '-ны байдлаар' : 'Жишиг очилтын бүртгэл') +
+        card('visit', 'Сүүлд очсон', lv ? dDot(lv) : 'Очсон бүртгэлгүй', lv ? daysBetween(lv, state.day) + ' хоног · ' + dDot(state.day) + '-ны байдлаар' : 'Жишиг очилтын бүртгэл') +
       '</dl></section>' +
       chart(c);
     var dlg = $('dr');
@@ -573,14 +739,17 @@
       var open = this.getAttribute('aria-expanded') !== 'true';
       this.setAttribute('aria-expanded', String(open)); document.querySelector('.cu-tools').classList.toggle('more', open);
       if ($('cu-panel')) $('cu-panel').hidden = !open;   // team demo: the folded extras (choices stay when it closes)
+      var st = $('cu-stick');   // a low screen: the open block scrolls with the page (CSS); bring its top into view
+      if (st) { st.classList.toggle('more', open); if (open && LOW.matches && st.getBoundingClientRect().top < 0) window.scrollBy(0, st.getBoundingClientRect().top); }
     });
     $('cu-reset').addEventListener('click', function () {
-      state.q = ''; state.rec = 'all'; state.aimag = ''; state.type = ''; state.scope = ''; state.t = '';
+      state.q = ''; state.rec = 'all'; state.aimag = ''; state.type = ''; state.scope = ''; state.t = ''; state.lf = '';
       if (TEAM) state.f = 'all'; else state.sort = '';   // team demo: search, task filter and extra filters; the sort stays
       renderCustomers(); $('cu-q').focus();
     });
     document.addEventListener('click', function (e) {
       var r = e.target.closest('.rt-row, .cu-row'); if (r) { openDetail(r.dataset.code, r); return; }
+      var u = e.target.closest('[data-empty]'); if (u) { undoEmpty(u.dataset.empty); return; }
       var a = e.target.closest('a[data-report], #dr-report');
       if (!a) return;
       rememberReturn(a.dataset.report || drawer.code);
